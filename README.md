@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Margins — a magazine with an admin
 
-## Getting Started
+A magazine website built with **Next.js** and **Supabase**. Staff sign in at `/admin` to write,
+edit and publish articles with a rich-text editor and image uploads.
 
-First, run the development server:
+- **Public site**: front page with a lead story, section pages, article pages, search
+- **Admin** (`/admin`): articles list, editor (drafts, publish/unpublish, cover image, inline images,
+  lead story), sections, and a team page to approve new writers
+- **Supabase** stores everything: Postgres for articles, Auth for logins, Storage for images.
+  Row Level Security makes drafts and writing available to staff only.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Setup
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. **Create a Supabase project** at [supabase.com](https://supabase.com) (free tier is fine).
+2. **Create the database**: in the dashboard open **SQL Editor → New query**, paste the contents
+   of [`supabase/schema.sql`](supabase/schema.sql) and click **Run**.
+3. **Add your keys**: copy `.env.example` to `.env.local` and fill in the values from
+   **Project Settings → API** (the Project URL and the publishable / anon key).
+4. **Run it**:
+   ```bash
+   npm install
+   npm run dev
+   ```
+   Open http://localhost:3000/admin/login and choose **Create account**.
+   **The first account becomes the admin.** Later accounts start as *pending*; approve them on
+   the **Team** page.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+> Supabase asks new users to confirm their email by default. To skip that while testing, turn off
+> **Authentication → Sign In / Providers → Email → Confirm email**.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Deploying (GitHub → Vercel)
 
-## Learn More
+1. Push this repo to GitHub.
+2. On [vercel.com](https://vercel.com) choose **Add New → Project**, import the repo.
+3. Add the two environment variables from `.env.local`, then **Deploy**.
+4. In Supabase → **Authentication → URL Configuration**, set the Site URL to your Vercel URL.
 
-To learn more about Next.js, take a look at the following resources:
+## Customising
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Magazine name and tagline: `src/lib/site.ts`
+- Colours and fonts: `src/app/globals.css` (`:root` variables) and `src/app/layout.tsx`
+- Admin styles: `src/app/admin/admin.css`
