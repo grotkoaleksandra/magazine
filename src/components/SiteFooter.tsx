@@ -7,7 +7,7 @@ export function SiteFooter() {
       <div className="container">
         <span className="footer-name">{site.name}</span>
         <span>{site.description}</span>
-        <Link href="/admin/">Log in or join</Link>
+        <Link href="/admin/?join=1">Become a member to contribute</Link>
       </div>
     </footer>
   );

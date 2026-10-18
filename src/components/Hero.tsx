@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { AccountNav } from "@/components/AccountNav";
 import { Today } from "@/components/SiteHeader";
 import { site } from "@/lib/site";
 
@@ -132,7 +132,7 @@ export function Hero({ videoUrl, ready }: { videoUrl?: string; ready: boolean })
 
       <div className="hero-bar">
         <Today />
-        <Link href="/admin/">Log in or join</Link>
+        <AccountNav />
       </div>
 
       <h1 ref={titleRef} className="hero-title" aria-label={text}>

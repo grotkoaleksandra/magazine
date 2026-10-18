@@ -1,9 +1,10 @@
 "use client";
 
-import { createContext, useActionState, useCallback, useContext, useEffect, useState } from "react";
+import { Suspense, createContext, useActionState, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
-import { signIn, signOut, signUp } from "@/lib/admin";
+import { signIn, signOut, signUp, type FormState } from "@/lib/admin";
 import { site } from "@/lib/site";
 import { supabase } from "@/lib/supabase";
 import { isStaffRole, type Profile } from "@/lib/types";
@@ -20,10 +21,14 @@ export function useStaff() {
 type Session = { status: "loading" } | { status: "signed-out" } | { status: "signed-in"; user: User; profile: Profile | null };
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const [session, setSession] = useState<Session>({ status: "loading" });
+  // Set while logging in from the form, so we go to the front page instead of flashing the dashboard.
+  const redirecting = useRef(false);
 
   const load = useCallback(async (user: User | null) => {
     if (!user) return setSession({ status: "signed-out" });
+    if (redirecting.current) return;
     const { data } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
     setSession({ status: "signed-in", user, profile: data as Profile | null });
   }, []);
@@ -38,7 +43,19 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   }, [load]);
 
   if (session.status === "loading") return <main className="auth"><p className="muted">Loading…</p></main>;
-  if (session.status === "signed-out") return <LoginScreen />;
+  if (session.status === "signed-out") {
+    return (
+      <Suspense>
+        <LoginScreen
+          onStart={() => (redirecting.current = true)}
+          onDone={(ok) => {
+            if (ok) router.replace("/");
+            else redirecting.current = false;
+          }}
+        />
+      </Suspense>
+    );
+  }
 
   const { user, profile } = session;
   if (!profile) {
@@ -93,10 +110,18 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-function LoginScreen() {
-  const [mode, setMode] = useState<"in" | "up">("in");
-  const [inState, inAction, inPending] = useActionState(signIn, undefined);
-  const [upState, upAction, upPending] = useActionState(signUp, undefined);
+function LoginScreen({ onStart, onDone }: { onStart: () => void; onDone: (ok: boolean) => void }) {
+  const [mode, setMode] = useState<"in" | "up">(useSearchParams().get("join") ? "up" : "in");
+  const withRedirect =
+    (fn: typeof signIn) =>
+    async (prev: FormState, formData: FormData): Promise<FormState> => {
+      onStart();
+      const result = await fn(prev, formData);
+      onDone(!result?.error && !result?.message);
+      return result;
+    };
+  const [inState, inAction, inPending] = useActionState(withRedirect(signIn), undefined);
+  const [upState, upAction, upPending] = useActionState(withRedirect(signUp), undefined);
   const state = mode === "in" ? inState : upState;
   const pending = mode === "in" ? inPending : upPending;
 
@@ -106,7 +131,7 @@ function LoginScreen() {
         <Link href="/" className="auth-brand">
           {site.name}
         </Link>
-        <p className="muted">{mode === "in" ? "Log in to your account" : "Join to write for the Members\u2019 Board"}</p>
+        <p className="muted">{mode === "in" ? "Log in to your account" : "Become a member to contribute to the Members\u2019 Board"}</p>
         <form action={mode === "in" ? inAction : upAction} className="auth-form">
           {mode === "up" && (
             <label>

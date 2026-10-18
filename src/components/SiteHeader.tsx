@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSyncExternalStore } from "react";
 import { BOARD_NAME, fetchCategories } from "@/lib/data";
 import { site } from "@/lib/site";
+import { AccountNav } from "@/components/AccountNav";
 import { useQuery } from "@/lib/useQuery";
 
 export function SectionNav({ sticky = false }: { sticky?: boolean }) {
@@ -26,6 +27,7 @@ export function SectionNav({ sticky = false }: { sticky?: boolean }) {
         <Link href="/members/" className="nav-board">
           {BOARD_NAME}
         </Link>
+        {sticky && <AccountNav />}
       </div>
     </nav>
   );

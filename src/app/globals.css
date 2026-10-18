@@ -270,3 +270,19 @@ img { max-width: 100%; display: block; }
 @media (prefers-reduced-motion: reduce) {
   .hero-title, .hero-curtain, .hero-bar { transition: none; }
 }
+
+/* ── Account links (header) ── */
+.account-nav { display: inline-flex; align-items: center; gap: 16px; font-size: 13px; font-weight: 500; letter-spacing: 0; text-transform: none; }
+.account-nav a { text-decoration: none; }
+.account-nav a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.account-join { border: 1px solid currentColor; border-radius: 999px; padding: 5px 12px; }
+.account-join:hover { text-decoration: none !important; opacity: 0.75; }
+.account-icon { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; border: 1px solid currentColor; }
+.account-icon .avatar { width: 28px !important; height: 28px !important; }
+.masthead-right { display: inline-flex; align-items: center; gap: 20px; }
+.section-nav-sticky .account-nav { margin-left: auto; }
+@media (max-width: 600px) {
+  .account-join { padding: 4px 10px; }
+  .masthead-right .masthead-search { display: none; }
+}
+.hero-bar .account-nav, .masthead-top .masthead-right { margin-left: auto; }
