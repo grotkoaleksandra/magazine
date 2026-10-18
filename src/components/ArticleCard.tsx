@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ArticleWithMeta } from "@/lib/types";
 import { BOARD_NAME } from "@/lib/data";
 import { formatDate } from "@/lib/format";
+import { Tags } from "@/components/Tags";
 
 export function Kicker({ article }: { article: ArticleWithMeta }) {
   if (article.kind === "member") {
@@ -48,6 +49,7 @@ export function ArticleCard({ article, size = "md" }: { article: ArticleWithMeta
         </h2>
         {article.excerpt && size !== "sm" && <p className="card-excerpt">{article.excerpt}</p>}
         <Byline article={article} />
+        {size !== "sm" && <Tags tags={article.tags} limit={3} />}
       </div>
     </article>
   );

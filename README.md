@@ -7,6 +7,8 @@ editor and image uploads.
 - **Public site**: front page with a lead story, sections, article pages, search
 - **Front page**: full-screen video hero. The title types itself out, then settles at the bottom and
   switches between light and dark text to stay readable over the video
+- **Tags & search** (`/search/`): every article can have tags like `#food #warsaw #thebestof`. Readers
+  filter by clicking tags (they combine), by section, or by typing text and `#tags` into the search box
 - **Members' Board** (`/members/`): anyone can join and write posts; editors approve them before they go
   live. Every contributor gets a profile page with photo and bio
 - **Dashboard** (`/admin/`): members see their own posts and profile. Editors and admins can publish

@@ -200,6 +200,16 @@ export function ArticleEditor({
                   />
                 </span>
               </label>
+              <label className="field">
+                Tags
+                <input
+                  name="tags"
+                  className="tags-input"
+                  defaultValue={(article?.tags ?? []).map((t) => `#${t}`).join(" ")}
+                  placeholder="#food #warsaw #thebestof"
+                />
+                <span className="field-hint">Separate with spaces or commas. Readers can filter by these.</span>
+              </label>
               {staff && (
                 <label className="checkbox">
                   <input type="checkbox" name="featured" defaultChecked={article?.featured ?? false} />

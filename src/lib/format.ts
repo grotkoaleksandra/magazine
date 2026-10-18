@@ -21,3 +21,13 @@ export function readingTime(html: string) {
   const words = html.replace(/<[^>]+>/g, " ").trim().split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.round(words / 230));
 }
+
+// "#Food, #warsaw  thebestof" → ["food", "warsaw", "thebestof"]
+export function normalizeTags(input: string) {
+  const tags = input
+    .toLowerCase()
+    .split(/[\s,]+/)
+    .map((t) => t.replace(/^#+/, "").replace(/[^\p{L}\p{N}_-]/gu, ""))
+    .filter(Boolean);
+  return [...new Set(tags)].slice(0, 12);
+}

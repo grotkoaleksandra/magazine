@@ -12,7 +12,15 @@ export async function fetchCategories(): Promise<Category[]> {
 }
 
 export async function fetchPublished(
-  opts: { categoryId?: number; search?: string; limit?: number; kind?: Kind; featured?: boolean; authorId?: string } = {},
+  opts: {
+    categoryId?: number;
+    search?: string;
+    tags?: string[];
+    limit?: number;
+    kind?: Kind;
+    featured?: boolean;
+    authorId?: string;
+  } = {},
 ) {
   let query = supabase
     .from("articles")
@@ -24,9 +32,11 @@ export async function fetchPublished(
   if (opts.kind) query = query.eq("kind", opts.kind);
   if (opts.featured !== undefined) query = query.eq("featured", opts.featured);
   if (opts.authorId) query = query.eq("author_id", opts.authorId);
+  if (opts.tags?.length) query = query.contains("tags", opts.tags);
   if (opts.search) {
-    const term = opts.search.replace(/[%,()]/g, " ");
-    query = query.or(`title.ilike.%${term}%,excerpt.ilike.%${term}%`);
+    const term = opts.search.replace(/[%,(){}"]/g, " ").trim();
+    const asTag = term.toLowerCase().replace(/\s+/g, "");
+    query = query.or(`title.ilike.%${term}%,excerpt.ilike.%${term}%,tags.cs.{${asTag}}`);
   }
   const { data, error } = await query;
   if (error) throw error;
@@ -59,4 +69,13 @@ export async function fetchContributors() {
   return ((authors ?? []) as Author[])
     .map((a) => ({ ...a, posts: counts.get(a.id) ?? 0 }))
     .sort((a, b) => b.posts - a.posts);
+}
+
+// Every tag used on a published article, most used first.
+export async function fetchTagCounts() {
+  const { data, error } = await supabase.from("articles").select("tags").eq("status", "published");
+  if (error) throw error;
+  const counts = new Map<string, number>();
+  for (const row of data ?? []) for (const t of row.tags ?? []) counts.set(t, (counts.get(t) ?? 0) + 1);
+  return [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([tag, count]) => ({ tag, count }));
 }

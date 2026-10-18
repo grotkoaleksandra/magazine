@@ -8,6 +8,7 @@ import { fetchArticleBySlug } from "@/lib/data";
 import { readingTime } from "@/lib/format";
 import { Byline, Kicker } from "@/components/ArticleCard";
 import { statusLabel } from "@/lib/types";
+import { Tags } from "@/components/Tags";
 import { sanitizeArticleHtml } from "@/lib/sanitize";
 import { site } from "@/lib/site";
 import { useQuery } from "@/lib/useQuery";
@@ -63,6 +64,11 @@ function Article() {
         </figure>
       )}
       <div className="prose" dangerouslySetInnerHTML={{ __html: sanitizeArticleHtml(article.body) }} />
+      {article.tags?.length > 0 && (
+        <footer className="story-tags">
+          <Tags tags={article.tags} />
+        </footer>
+      )}
     </article>
   );
 }

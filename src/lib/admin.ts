@@ -1,7 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { basePath } from "@/lib/site";
 import { sanitizeArticleHtml } from "@/lib/sanitize";
-import { slugify } from "@/lib/format";
+import { normalizeTags, slugify } from "@/lib/format";
 import { isStaffRole, type Kind, type Role, type Status } from "@/lib/types";
 
 // Admin operations run in the browser. Supabase Row Level Security
@@ -85,6 +85,7 @@ export async function saveArticle(_prev: FormState, formData: FormData): Promise
     cover_image_url: String(formData.get("cover_image_url") || "") || null,
     category_id: categoryId,
     kind,
+    tags: normalizeTags(String(formData.get("tags") || "")),
     featured: staff && formData.get("featured") === "on",
     status,
     updated_at: new Date().toISOString(),

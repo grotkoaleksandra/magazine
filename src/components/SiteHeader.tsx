@@ -27,6 +27,7 @@ export function SectionNav({ sticky = false }: { sticky?: boolean }) {
         <Link href="/members/" className="nav-board">
           {BOARD_NAME}
         </Link>
+        {sticky && <Link href="/search/">Search</Link>}
         {sticky && <AccountNav />}
       </div>
     </nav>
@@ -44,7 +45,7 @@ export function HeaderSearch() {
         router.push(`/search/?q=${encodeURIComponent(String(q ?? ""))}`);
       }}
     >
-      <input name="q" type="search" placeholder="Search" aria-label="Search articles" />
+      <input name="q" type="search" placeholder="Search or #tag" aria-label="Search articles" />
     </form>
   );
 }

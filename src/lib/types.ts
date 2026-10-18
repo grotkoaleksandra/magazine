@@ -21,6 +21,7 @@ export type Article = {
   kind: Kind;
   status: Status;
   featured: boolean;
+  tags: string[];
   published_at: string | null;
   created_at: string;
   updated_at: string;
