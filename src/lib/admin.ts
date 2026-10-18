@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase";
 import { basePath } from "@/lib/site";
 import { sanitizeArticleHtml } from "@/lib/sanitize";
 import { slugify } from "@/lib/format";
+import { isStaffRole, type Kind, type Role, type Status } from "@/lib/types";
 
 // Admin operations run in the browser. Supabase Row Level Security
 // (supabase/schema.sql) is what actually restricts them to staff.
@@ -38,22 +39,35 @@ export async function signOut() {
 
 // ── Articles ────────────────────────────────────────────────
 
+async function currentRole(userId: string) {
+  const { data } = await supabase.from("profiles").select("role").eq("id", userId).single();
+  return (data?.role ?? "member") as Role;
+}
+
 export async function saveArticle(_prev: FormState, formData: FormData): Promise<FormState> {
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "You've been signed out. Sign in again and retry." };
+  const staff = isStaffRole(await currentRole(user.id));
 
   const id = formData.get("id") ? Number(formData.get("id")) : null;
   const title = String(formData.get("title") || "").trim();
-  if (!title) return { error: "Please give the article a title." };
+  if (!title) return { error: "Please give the post a title." };
 
+  // Staff can publish anywhere. Members write for the Board and submit for review.
   const intent = String(formData.get("intent"));
-  const status =
-    intent === "publish" ? "published" : intent === "unpublish" ? "draft" : String(formData.get("status") || "draft");
+  const current = String(formData.get("status") || "draft") as Status;
+  const status: Status = staff
+    ? intent === "publish" ? "published" : intent === "unpublish" ? "draft" : current
+    : intent === "submit" ? "pending" : intent === "withdraw" ? "draft" : current === "published" ? "pending" : current;
+
+  const placement = String(formData.get("placement") || "member");
+  const kind: Kind = staff && placement !== "member" ? "magazine" : "member";
+  const categoryId = staff && placement.startsWith("cat:") ? Number(placement.slice(4)) : null;
 
   // Make sure the slug is unique by appending -2, -3… if needed.
-  const base = slugify(String(formData.get("slug") || "") || title) || "article";
+  const base = slugify(String(formData.get("slug") || "") || title) || "post";
   let slug = base;
   for (let n = 2; ; n++) {
     let q = supabase.from("articles").select("id").eq("slug", slug);
@@ -69,34 +83,36 @@ export async function saveArticle(_prev: FormState, formData: FormData): Promise
     excerpt: String(formData.get("excerpt") || "").trim(),
     body: sanitizeArticleHtml(String(formData.get("body") || "")),
     cover_image_url: String(formData.get("cover_image_url") || "") || null,
-    category_id: formData.get("category_id") ? Number(formData.get("category_id")) : null,
-    featured: formData.get("featured") === "on",
+    category_id: categoryId,
+    kind,
+    featured: staff && formData.get("featured") === "on",
     status,
     updated_at: new Date().toISOString(),
   };
 
-  let savedId = id;
-  if (id) {
-    const { data: existing } = await supabase.from("articles").select("published_at").eq("id", id).single();
-    const published_at = existing?.published_at ?? (status === "published" ? new Date().toISOString() : null);
-    const { error } = await supabase.from("articles").update({ ...fields, published_at }).eq("id", id);
-    if (error) return { error: error.message };
-  } else {
+  // Someone else's unpublished post can hold a slug we can't see; retry with a random suffix.
+  const write = async (values: typeof fields) => {
+    if (id) {
+      const { data: existing } = await supabase.from("articles").select("published_at").eq("id", id).single();
+      const published_at = existing?.published_at ?? (status === "published" ? new Date().toISOString() : null);
+      const { error } = await supabase.from("articles").update({ ...values, published_at }).eq("id", id);
+      return { id, error };
+    }
     const { data, error } = await supabase
       .from("articles")
-      .insert({ ...fields, author_id: user.id, published_at: status === "published" ? new Date().toISOString() : null })
+      .insert({ ...values, author_id: user.id, published_at: status === "published" ? new Date().toISOString() : null })
       .select("id")
       .single();
-    if (error) return { error: error.message };
-    savedId = data.id;
-  }
+    return { id: data?.id as number | undefined, error };
+  };
 
-  // Only one lead story at a time.
-  if (fields.featured) {
-    await supabase.from("articles").update({ featured: false }).neq("id", savedId!).eq("featured", true);
+  let result = await write(fields);
+  if (result.error?.code === "23505") {
+    result = await write({ ...fields, slug: `${base}-${Math.random().toString(36).slice(2, 6)}` });
   }
+  if (result.error) return { error: result.error.message };
 
-  return { savedId: savedId!, status };
+  return { savedId: result.id!, status };
 }
 
 export async function deleteArticle(id: number) {
@@ -122,8 +138,15 @@ export async function deleteCategory(id: number) {
 
 // ── Team ────────────────────────────────────────────────────
 
-export async function setRole(id: string, role: "admin" | "editor" | "pending") {
+export async function setRole(id: string, role: Role) {
   const { error } = await supabase.from("profiles").update({ role }).eq("id", id);
+  if (error) throw error;
+}
+
+// ── Profile ─────────────────────────────────────────────────
+
+export async function updateProfile(id: string, values: { display_name: string; bio: string; avatar_url: string | null }) {
+  const { error } = await supabase.from("profiles").update(values).eq("id", id);
   if (error) throw error;
 }
 
@@ -133,9 +156,24 @@ export async function setRole(id: string, role: "admin" | "editor" | "pending") 
 export async function uploadImage(file: File) {
   if (!file.type.startsWith("image/")) throw new Error("Please choose an image file.");
   if (file.size > 10 * 1024 * 1024) throw new Error("Images must be under 10 MB.");
+  return uploadMedia(file);
+}
 
+// Supabase's free plan caps uploads at 50 MB per file.
+export async function uploadVideo(file: File) {
+  if (!file.type.startsWith("video/")) throw new Error("Please choose a video file (MP4 or WebM).");
+  if (file.size > 50 * 1024 * 1024) throw new Error("Videos must be under 50 MB. Try exporting a shorter or smaller clip.");
+  return uploadMedia(file);
+}
+
+async function uploadMedia(file: File) {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Please sign in again.");
+  // Each person uploads into their own folder (see storage policies in schema.sql).
   const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-  const path = `${new Date().getFullYear()}/${crypto.randomUUID()}.${ext}`;
+  const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
   const { error } = await supabase.storage.from("media").upload(path, file, {
     cacheControl: "31536000",
     contentType: file.type,

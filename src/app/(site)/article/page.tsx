@@ -5,7 +5,9 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ErrorNote, Loading } from "@/components/States";
 import { fetchArticleBySlug } from "@/lib/data";
-import { formatDate, readingTime } from "@/lib/format";
+import { readingTime } from "@/lib/format";
+import { Byline, Kicker } from "@/components/ArticleCard";
+import { statusLabel } from "@/lib/types";
 import { sanitizeArticleHtml } from "@/lib/sanitize";
 import { site } from "@/lib/site";
 import { useQuery } from "@/lib/useQuery";
@@ -41,23 +43,18 @@ function Article() {
 
   return (
     <article className="story">
-      {article.status === "draft" && (
+      {article.status !== "published" && (
         <div className="draft-banner">
-          Draft preview — only staff can see this. <Link href={`/admin/edit/?id=${article.id}`}>Edit</Link>
+          {statusLabel[article.status]} — only you and the editors can see this.{" "}
+          <Link href={`/admin/edit/?id=${article.id}`}>Edit</Link>
         </div>
       )}
       <header className="story-header">
-        {article.category && (
-          <Link href={`/category/?s=${article.category.slug}`} className="kicker">
-            {article.category.name}
-          </Link>
-        )}
+        <Kicker article={article} />
         <h1 className="story-title">{article.title}</h1>
         {article.excerpt && <p className="story-dek">{article.excerpt}</p>}
-        <p className="byline">
-          {article.author?.display_name && <>By {article.author.display_name} · </>}
-          {formatDate(article.published_at ?? article.updated_at)} · {readingTime(article.body)} min read
-        </p>
+        <Byline article={article} date={article.published_at ?? article.updated_at} />
+        <p className="byline">{readingTime(article.body)} min read</p>
       </header>
       {article.cover_image_url && (
         <figure className="story-cover">

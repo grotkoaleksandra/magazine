@@ -1,3 +1,7 @@
+export type Role = "admin" | "editor" | "member";
+export type Status = "draft" | "pending" | "published";
+export type Kind = "magazine" | "member";
+
 export type Category = {
   id: number;
   name: string;
@@ -14,22 +18,41 @@ export type Article = {
   cover_image_url: string | null;
   category_id: number | null;
   author_id: string | null;
-  status: "draft" | "published";
+  kind: Kind;
+  status: Status;
   featured: boolean;
   published_at: string | null;
   created_at: string;
   updated_at: string;
 };
 
+export type Author = {
+  id: string;
+  display_name: string | null;
+  bio: string;
+  avatar_url: string | null;
+  role: Role;
+};
+
 export type ArticleWithMeta = Article & {
   category: Pick<Category, "name" | "slug"> | null;
-  author: { display_name: string | null } | null;
+  author: Pick<Author, "id" | "display_name" | "avatar_url"> | null;
 };
 
 export type Profile = {
   id: string;
   email: string | null;
   display_name: string | null;
-  role: "admin" | "editor" | "pending";
+  bio: string;
+  avatar_url: string | null;
+  role: Role;
   created_at: string;
+};
+
+export const isStaffRole = (role: Role | undefined) => role === "admin" || role === "editor";
+
+export const statusLabel: Record<Status, string> = {
+  draft: "Draft",
+  pending: "Awaiting review",
+  published: "Published",
 };

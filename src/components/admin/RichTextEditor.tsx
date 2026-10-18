@@ -6,7 +6,15 @@ import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import { uploadImage } from "@/lib/admin";
 
-export function RichTextEditor({ initialHtml, onChange }: { initialHtml: string; onChange: (html: string) => void }) {
+export function RichTextEditor({
+  initialHtml,
+  onChange,
+  editable = true,
+}: {
+  initialHtml: string;
+  onChange: (html: string) => void;
+  editable?: boolean;
+}) {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -16,6 +24,7 @@ export function RichTextEditor({ initialHtml, onChange }: { initialHtml: string;
       Image,
     ],
     content: initialHtml,
+    editable,
     immediatelyRender: false,
     editorProps: { attributes: { class: "prose editor-content" } },
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
@@ -23,7 +32,7 @@ export function RichTextEditor({ initialHtml, onChange }: { initialHtml: string;
 
   return (
     <div className="editor">
-      {editor && <Toolbar editor={editor} />}
+      {editor && editable && <Toolbar editor={editor} />}
       <EditorContent editor={editor} />
     </div>
   );

@@ -1,14 +1,15 @@
 "use client";
 
-import { createContext, useActionState, useContext, useEffect, useState } from "react";
+import { createContext, useActionState, useCallback, useContext, useEffect, useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
 import { signIn, signOut, signUp } from "@/lib/admin";
 import { site } from "@/lib/site";
 import { supabase } from "@/lib/supabase";
-import type { Profile } from "@/lib/types";
+import { isStaffRole, type Profile } from "@/lib/types";
 
-const StaffContext = createContext<{ user: User; profile: Profile } | null>(null);
+type StaffContextValue = { user: User; profile: Profile; staff: boolean; reloadProfile: () => void };
+const StaffContext = createContext<StaffContextValue | null>(null);
 
 export function useStaff() {
   const ctx = useContext(StaffContext);
@@ -21,30 +22,31 @@ type Session = { status: "loading" } | { status: "signed-out" } | { status: "sig
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session>({ status: "loading" });
 
+  const load = useCallback(async (user: User | null) => {
+    if (!user) return setSession({ status: "signed-out" });
+    const { data } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
+    setSession({ status: "signed-in", user, profile: data as Profile | null });
+  }, []);
+
   useEffect(() => {
-    async function load(user: User | null) {
-      if (!user) return setSession({ status: "signed-out" });
-      const { data } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
-      setSession({ status: "signed-in", user, profile: data as Profile | null });
-    }
     supabase.auth.getSession().then(({ data }) => load(data.session?.user ?? null));
     const { data } = supabase.auth.onAuthStateChange((event, s) => {
       // Defer so we don't call Supabase from inside its own auth callback.
       if (event !== "TOKEN_REFRESHED") setTimeout(() => load(s?.user ?? null), 0);
     });
     return () => data.subscription.unsubscribe();
-  }, []);
+  }, [load]);
 
   if (session.status === "loading") return <main className="auth"><p className="muted">Loading…</p></main>;
   if (session.status === "signed-out") return <LoginScreen />;
 
   const { user, profile } = session;
-  if (!profile || profile.role === "pending") {
+  if (!profile) {
     return (
       <main className="auth">
         <div className="auth-card">
-          <h1 className="auth-brand">Almost there</h1>
-          <p>Your account is waiting for an admin to approve it. Ask them to give you access on the Team page.</p>
+          <h1 className="auth-brand">One moment</h1>
+          <p>We couldn&apos;t load your profile. Refresh the page, or sign out and back in.</p>
           <button className="btn" onClick={signOut}>
             Sign out
           </button>
@@ -52,9 +54,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       </main>
     );
   }
+  const staff = isStaffRole(profile.role);
 
   return (
-    <StaffContext.Provider value={{ user, profile }}>
+    <StaffContext.Provider value={{ user, profile, staff, reloadProfile: () => load(user) }}>
       <div className="admin">
         <aside className="admin-nav">
           <Link href="/admin/" className="admin-brand">
@@ -62,17 +65,23 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </Link>
           <nav>
             <Link href="/admin/edit/" className="btn btn-primary">
-              + New article
+              + {staff ? "New article" : "Write a post"}
             </Link>
-            <Link href="/admin/">Articles</Link>
-            <Link href="/admin/categories/">Sections</Link>
+            <Link href="/admin/">{staff ? "Articles" : "My posts"}</Link>
+            {staff && <Link href="/admin/?tab=review">Awaiting review</Link>}
+            {staff && <Link href="/admin/categories/">Sections</Link>}
             {profile.role === "admin" && <Link href="/admin/team/">Team</Link>}
+            {profile.role === "admin" && <Link href="/admin/settings/">Site settings</Link>}
+            <Link href="/admin/profile/">My profile</Link>
             <Link href="/" target="_blank">
               View site ↗
             </Link>
           </nav>
           <div className="admin-user">
-            <span>{profile.display_name ?? user.email}</span>
+            <span>
+              {profile.display_name ?? user.email}
+              <span className="muted"> · {profile.role}</span>
+            </span>
             <button className="link-button" onClick={signOut}>
               Sign out
             </button>
@@ -97,7 +106,7 @@ function LoginScreen() {
         <Link href="/" className="auth-brand">
           {site.name}
         </Link>
-        <p className="muted">{mode === "in" ? "Staff sign in" : "Create a writer account"}</p>
+        <p className="muted">{mode === "in" ? "Log in to your account" : "Join to write for the Members\u2019 Board"}</p>
         <form action={mode === "in" ? inAction : upAction} className="auth-form">
           {mode === "up" && (
             <label>
@@ -125,7 +134,7 @@ function LoginScreen() {
             {pending ? "Please wait…" : mode === "in" ? "Sign in" : "Create account"}
           </button>
           <button type="button" className="link-button" onClick={() => setMode(mode === "in" ? "up" : "in")}>
-            {mode === "in" ? "New writer? Create an account" : "Already have an account? Sign in"}
+            {mode === "in" ? "New here? Create an account" : "Already have an account? Sign in"}
           </button>
         </form>
       </div>

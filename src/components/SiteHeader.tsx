@@ -3,20 +3,29 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSyncExternalStore } from "react";
-import { fetchCategories } from "@/lib/data";
+import { BOARD_NAME, fetchCategories } from "@/lib/data";
+import { site } from "@/lib/site";
 import { useQuery } from "@/lib/useQuery";
 
-export function SectionNav() {
+export function SectionNav({ sticky = false }: { sticky?: boolean }) {
   const { data: categories } = useQuery(fetchCategories, []);
   return (
-    <nav className="section-nav" aria-label="Sections">
+    <nav className={`section-nav ${sticky ? "section-nav-sticky" : ""}`} aria-label="Sections">
       <div className="container">
+        {sticky && (
+          <Link href="/" className="nav-brand">
+            {site.name}
+          </Link>
+        )}
         <Link href="/">Latest</Link>
         {categories?.map((c) => (
           <Link key={c.id} href={`/category/?s=${c.slug}`}>
             {c.name}
           </Link>
         ))}
+        <Link href="/members/" className="nav-board">
+          {BOARD_NAME}
+        </Link>
       </div>
     </nav>
   );

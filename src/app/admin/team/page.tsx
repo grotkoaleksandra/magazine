@@ -26,8 +26,9 @@ export default function TeamPage() {
         <h1>Team</h1>
       </div>
       <p className="muted">
-        New writers create an account from the staff login page, then appear here as <em>pending</em>. Make them an
-        editor to let them write and publish.
+        Everyone who joins starts as a <strong>member</strong>: they can write posts for the Members&apos; Board,
+        which you approve. <strong>Editors</strong> can publish anywhere and review members&apos; posts.{" "}
+        <strong>Admins</strong> can also manage the team and site settings.
       </p>
       <div className="panel">
         {loading ? (
@@ -55,7 +56,7 @@ export default function TeamPage() {
                       <span className="tag tag-published">{p.role} (you)</span>
                     ) : (
                       <div className="role-form">
-                        {(["pending", "editor", "admin"] as const).map((r) => (
+                        {(["member", "editor", "admin"] as const).map((r) => (
                           <button
                             key={r}
                             className={`chip ${p.role === r ? "chip-on" : ""}`}
