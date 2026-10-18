@@ -1,0 +1,25 @@
+-- Tags for the placeholder articles.
+update public.articles set tags = array['warsaw', 'film', 'shops', 'thebestof'] where slug = 'the-last-video-shop-on-the-street';
+update public.articles set tags = array['books', 'craft', 'diy'] where slug = 'why-everyone-is-learning-to-bind-books-again';
+update public.articles set tags = array['music', 'vinyl', 'slowliving'] where slug = 'a-year-of-listening-only-to-vinyl';
+update public.articles set tags = array['music', 'warsaw', 'community'] where slug = 'the-choir-that-sings-in-car-parks';
+update public.articles set tags = array['film', 'nightlife', 'warsaw'] where slug = 'notes-from-a-midnight-cinema';
+update public.articles set tags = array['fashion', 'slowliving', 'thebestof'] where slug = 'the-coat-you-will-wear-for-twenty-years';
+update public.articles set tags = array['fashion', 'diy', 'craft'] where slug = 'mending-is-the-new-shopping';
+update public.articles set tags = array['design', 'home', 'food'] where slug = 'what-your-kitchen-table-says-about-you';
+update public.articles set tags = array['fashion', 'essentials'] where slug = 'in-praise-of-the-plain-white-shirt';
+update public.articles set tags = array['essay', 'life', 'thebestof'] where slug = 'burn-your-boats-the-case-for-commitment';
+update public.articles set tags = array['essay', 'mind', 'slowliving'] where slug = 'boredom-is-a-skill-you-can-practise';
+update public.articles set tags = array['life', 'skateboarding', 'essay'] where slug = 'the-joy-of-being-a-beginner-at-forty';
+update public.articles set tags = array['politics', 'community', 'poland'] where slug = 'small-towns-big-experiments';
+update public.articles set tags = array['essay', 'life', 'work'] where slug = 'against-the-five-year-plan';
+update public.articles set tags = array['trains', 'europe', 'slowtravel', 'thebestof'] where slug = 'slow-trains-across-the-north';
+update public.articles set tags = array['islands', 'cycling', 'slowtravel'] where slug = 'an-island-with-no-cars';
+update public.articles set tags = array['food', 'markets', 'warsaw', 'coffee'] where slug = 'the-market-that-opens-at-four-in-the-morning';
+update public.articles set tags = array['walking', 'winter', 'coast'] where slug = 'walking-the-coast-path-in-winter';
+update public.articles set tags = array['food', 'family', 'recipes'] where slug = 'my-grandmother-s-recipe-box';
+update public.articles set tags = array['boats', 'craft', 'work', 'thebestof'] where slug = 'i-quit-my-job-to-build-boats';
+update public.articles set tags = array['warsaw', 'nightlife', 'love'] where slug = 'letters-to-a-stranger-on-the-night-bus';
+update public.articles set tags = array['gardening', 'food', 'community'] where slug = 'the-allotment-diaries-spring';
+update public.articles set tags = array['life', 'sport'] where slug = 'learning-to-swim-at-thirty-five';
+update public.articles set tags = array['coffee', 'warsaw', 'life'] where slug = 'a-map-of-every-caf-i-ve-cried-in';
