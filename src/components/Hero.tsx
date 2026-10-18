@@ -3,13 +3,18 @@
 import { useEffect, useRef, useState } from "react";
 import { AccountNav } from "@/components/AccountNav";
 import { Today } from "@/components/SiteHeader";
-import { site } from "@/lib/site";
+import { basePath, site } from "@/lib/site";
 
 type Phase = "typing" | "typed" | "settled";
 type Tone = "light" | "dark";
 
 const SEEN_KEY = "byb-intro-seen";
 const TYPE_MS = 95;
+
+// Built-in punk montage (free Pexels clips in public/hero), used until an admin uploads a video.
+const MONTAGE = [1, 2, 3, 4, 5, 6].map((n) => `${basePath}/hero/punk-${n}.mp4`);
+const CUT_MIN_MS = 700;
+const CUT_MAX_MS = 1300;
 
 // Full-screen front-page hero. On the first visit of a session the title types
 // itself out in the centre; once the page has loaded it glides to the bottom.
@@ -21,7 +26,13 @@ export function Hero({ videoUrl, ready }: { videoUrl?: string; ready: boolean })
   const [tone, setTone] = useState<Tone>("light");
   const heroRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const activeRef = useRef(0);
+  const [active, setActive] = useState(0);
+  const [cuts, setCuts] = useState(0);
+
+  const sources = videoUrl ? [videoUrl] : MONTAGE;
+  const montage = !videoUrl;
 
   // Type the title, or skip straight to the end for repeat visits / reduced motion.
   useEffect(() => {
@@ -64,9 +75,38 @@ export function Hero({ videoUrl, ready }: { videoUrl?: string; ready: boolean })
     return () => clearTimeout(t);
   }, [phase, ready]);
 
+  // Hard-cut between clips, jumping to a random moment in each. Clips load one at a time.
+  useEffect(() => {
+    if (!montage || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let timer: ReturnType<typeof setTimeout>;
+    const cut = () => {
+      const videos = videoRefs.current;
+      const pending = videos.find((v) => v && v.preload === "none");
+      if (pending) {
+        pending.preload = "auto";
+        pending.load();
+      }
+      const ready = videos
+        .map((v, i) => ({ v, i }))
+        .filter(({ v, i }) => v && i !== activeRef.current && v.readyState >= 2 && v.duration > 2);
+      if (ready.length) {
+        const { v, i } = ready[Math.floor(Math.random() * ready.length)];
+        v!.currentTime = Math.random() * (v!.duration - 1.5);
+        v!.play().catch(() => {});
+        videos[activeRef.current]?.pause();
+        activeRef.current = i;
+        setActive(i);
+        setCuts((c) => c + 1);
+      }
+      timer = setTimeout(cut, CUT_MIN_MS + Math.random() * (CUT_MAX_MS - CUT_MIN_MS));
+    };
+    timer = setTimeout(cut, 1200);
+    return () => clearTimeout(timer);
+  }, [montage]);
+
   // Sample the video behind the title and pick light or dark text.
   useEffect(() => {
-    if (phase !== "settled" || !videoUrl) return;
+    if (phase !== "settled") return;
     const canvas = document.createElement("canvas");
     canvas.width = 48;
     canvas.height = 12;
@@ -74,7 +114,7 @@ export function Hero({ videoUrl, ready }: { videoUrl?: string; ready: boolean })
     let failed = false;
 
     const sample = () => {
-      const video = videoRef.current;
+      const video = videoRefs.current[activeRef.current];
       const hero = heroRef.current;
       const title = titleRef.current;
       if (!ctx || failed || !video || !hero || !title || video.readyState < 2 || !video.videoWidth) return;
@@ -105,28 +145,39 @@ export function Hero({ videoUrl, ready }: { videoUrl?: string; ready: boolean })
     };
 
     sample();
-    const timer = setInterval(sample, 300);
+    const timer = setInterval(sample, montage ? 150 : 300);
     return () => clearInterval(timer);
-  }, [phase, videoUrl]);
+  }, [phase, montage]);
 
   const settled = phase === "settled";
 
   return (
-    <section ref={heroRef} className={`hero hero-${settled ? tone : "light"} ${settled ? "is-settled" : ""}`}>
-      {videoUrl ? (
+    <section
+      ref={heroRef}
+      className={`hero hero-${settled ? tone : "light"} ${settled ? "is-settled" : ""} ${montage ? "hero-montage" : ""}`}
+    >
+      <div className="hero-fallback" />
+      {sources.map((src, i) => (
         <video
-          ref={videoRef}
-          className="hero-video"
-          src={videoUrl}
+          key={src}
+          ref={(el) => {
+            videoRefs.current[i] = el;
+          }}
+          className={`hero-video ${i === active ? "is-active" : ""}`}
+          src={src}
           crossOrigin="anonymous"
-          autoPlay
+          autoPlay={i === 0}
           muted
           loop
           playsInline
-          preload="auto"
+          preload={i < 2 ? "auto" : "none"}
         />
-      ) : (
-        <div className="hero-fallback" />
+      ))}
+      {montage && (
+        <>
+          <div key={cuts} className="hero-flash" aria-hidden />
+          <div className="hero-grain" aria-hidden />
+        </>
       )}
       <div className="hero-curtain" aria-hidden />
 

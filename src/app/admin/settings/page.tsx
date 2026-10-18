@@ -38,13 +38,13 @@ export default function SettingsPage() {
       <div className="panel settings-panel">
         <h2 className="panel-heading">Front-page video</h2>
         <p className="muted">
-          Plays silently on a loop behind the magazine title. The title switches between light and dark text to stay
+          Plays silently on a loop behind the magazine title, replacing the built-in punk montage. The title switches between light and dark text to stay
           readable over it. Use an MP4 under 50 MB; a 10–20 second clip at 1080p works well.
         </p>
         {video ? (
           <video className="settings-video" src={video} autoPlay muted loop playsInline />
         ) : (
-          <p className="muted">No video yet — the front page shows a dark background.</p>
+          <p className="muted">No custom video — the front page plays the built-in punk montage. Upload a video to replace it.</p>
         )}
         <div className="inline-form">
           <label className="btn btn-primary">
