@@ -1,4 +1,4 @@
-# Margins — a magazine with an admin
+# Burn Yer Boats — a magazine with an admin
 
 A magazine website hosted on **GitHub Pages**, with **Supabase** for the database, staff logins and
 image storage. Staff sign in at `/admin/` to write, edit and publish articles with a rich-text
