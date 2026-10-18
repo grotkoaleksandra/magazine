@@ -1,0 +1,27 @@
+-- Removes the placeholder articles added by placeholders.sql.
+delete from public.articles where slug in (
+  'the-last-video-shop-on-the-street',
+  'why-everyone-is-learning-to-bind-books-again',
+  'a-year-of-listening-only-to-vinyl',
+  'the-choir-that-sings-in-car-parks',
+  'notes-from-a-midnight-cinema',
+  'the-coat-you-will-wear-for-twenty-years',
+  'mending-is-the-new-shopping',
+  'what-your-kitchen-table-says-about-you',
+  'in-praise-of-the-plain-white-shirt',
+  'burn-your-boats-the-case-for-commitment',
+  'boredom-is-a-skill-you-can-practise',
+  'the-joy-of-being-a-beginner-at-forty',
+  'small-towns-big-experiments',
+  'against-the-five-year-plan',
+  'slow-trains-across-the-north',
+  'an-island-with-no-cars',
+  'the-market-that-opens-at-four-in-the-morning',
+  'walking-the-coast-path-in-winter',
+  'my-grandmother-s-recipe-box',
+  'i-quit-my-job-to-build-boats',
+  'letters-to-a-stranger-on-the-night-bus',
+  'the-allotment-diaries-spring',
+  'learning-to-swim-at-thirty-five',
+  'a-map-of-every-caf-i-ve-cried-in'
+);
