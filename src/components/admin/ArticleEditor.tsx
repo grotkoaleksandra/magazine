@@ -1,13 +1,12 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import Link from "next/link";
-import { deleteArticle, saveArticle } from "@/app/admin/actions";
+import { useRouter } from "next/navigation";
+import { deleteArticle, saveArticle, uploadImage } from "@/lib/admin";
 import { slugify } from "@/lib/format";
 import type { Article, Category } from "@/lib/types";
-import { ConfirmButton } from "./ConfirmButton";
 import { RichTextEditor } from "./RichTextEditor";
-import { uploadImage } from "./upload";
 
 export function ArticleEditor({
   article,
@@ -18,7 +17,15 @@ export function ArticleEditor({
   categories: Category[];
   saved?: string;
 }) {
+  const router = useRouter();
   const [state, action, pending] = useActionState(saveArticle, undefined);
+
+  // After a save, reload the editor from the database with a confirmation note.
+  useEffect(() => {
+    if (state?.savedId) {
+      router.replace(`/admin/edit/?id=${state.savedId}&saved=${state.status}&t=${Date.now()}`);
+    }
+  }, [state, router]);
   const [title, setTitle] = useState(article?.title ?? "");
   const [slug, setSlug] = useState(article?.slug ?? "");
   const [slugEdited, setSlugEdited] = useState(Boolean(article));
@@ -61,7 +68,7 @@ export function ArticleEditor({
           </div>
           <div className="actions">
             {article && (
-              <Link href={`/article/${article.slug}`} target="_blank" className="btn">
+              <Link href={`/article/?s=${article.slug}`} target="_blank" className="btn">
                 {isPublished ? "View ↗" : "Preview ↗"}
               </Link>
             )}
@@ -168,12 +175,23 @@ export function ArticleEditor({
       </form>
 
       {article && (
-        <form action={deleteArticle} className="danger-zone">
-          <input type="hidden" name="id" value={article.id} />
-          <ConfirmButton message="Delete this article permanently?" className="link-button danger">
+        <div className="danger-zone">
+          <button
+            type="button"
+            className="link-button danger"
+            onClick={async () => {
+              if (!confirm("Delete this article permanently?")) return;
+              try {
+                await deleteArticle(article.id);
+                router.push("/admin/");
+              } catch (err) {
+                alert((err as Error).message);
+              }
+            }}
+          >
             Delete article
-          </ConfirmButton>
-        </form>
+          </button>
+        </div>
       )}
     </>
   );

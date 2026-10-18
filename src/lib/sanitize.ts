@@ -1,20 +1,13 @@
-import sanitizeHtml from "sanitize-html";
+import DOMPurify from "dompurify";
 
-// Article bodies are written in the rich-text editor; only allow the
-// formatting it produces so stored HTML can be rendered safely.
+// Article bodies come from the rich-text editor; only allow the formatting
+// it produces so stored HTML can be rendered safely.
 export function sanitizeArticleHtml(html: string) {
-  return sanitizeHtml(html, {
-    allowedTags: [
+  return DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: [
       "p", "br", "h2", "h3", "h4", "strong", "em", "u", "s", "a",
       "ul", "ol", "li", "blockquote", "hr", "img", "figure", "figcaption", "code", "pre",
     ],
-    allowedAttributes: {
-      a: ["href", "target", "rel"],
-      img: ["src", "alt", "title"],
-    },
-    allowedSchemes: ["http", "https", "mailto"],
-    transformTags: {
-      a: sanitizeHtml.simpleTransform("a", { rel: "noopener noreferrer" }),
-    },
+    ALLOWED_ATTR: ["href", "target", "rel", "src", "alt", "title"],
   });
 }

@@ -1,66 +1,56 @@
-"use server";
-
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { supabase } from "@/lib/supabase";
+import { basePath } from "@/lib/site";
 import { sanitizeArticleHtml } from "@/lib/sanitize";
 import { slugify } from "@/lib/format";
 
-export type FormState = { error?: string; message?: string } | undefined;
+// Admin operations run in the browser. Supabase Row Level Security
+// (supabase/schema.sql) is what actually restricts them to staff.
 
-async function requireStaff(adminOnly = false) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/admin/login");
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
-  const ok = adminOnly ? profile?.role === "admin" : profile?.role === "admin" || profile?.role === "editor";
-  if (!ok) throw new Error("You don't have permission to do that.");
-  return { supabase, user };
-}
+export type FormState = { error?: string; message?: string; savedId?: number; status?: string } | undefined;
 
 // ── Auth ────────────────────────────────────────────────────
 
 export async function signIn(_prev: FormState, formData: FormData): Promise<FormState> {
-  const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({
     email: String(formData.get("email")),
     password: String(formData.get("password")),
   });
-  if (error) return { error: error.message };
-  redirect("/admin");
+  return error ? { error: error.message } : undefined;
 }
 
 export async function signUp(_prev: FormState, formData: FormData): Promise<FormState> {
-  const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
     email: String(formData.get("email")),
     password: String(formData.get("password")),
-    options: { data: { display_name: String(formData.get("name") || "") } },
+    options: {
+      data: { display_name: String(formData.get("name") || "") },
+      emailRedirectTo: `${window.location.origin}${basePath}/admin/`,
+    },
   });
   if (error) return { error: error.message };
   if (!data.session) return { message: "Check your inbox to confirm your email, then sign in." };
-  redirect("/admin");
+  return undefined;
 }
 
 export async function signOut() {
-  const supabase = await createClient();
   await supabase.auth.signOut();
-  redirect("/admin/login");
 }
 
 // ── Articles ────────────────────────────────────────────────
 
 export async function saveArticle(_prev: FormState, formData: FormData): Promise<FormState> {
-  const { supabase, user } = await requireStaff();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "You've been signed out. Sign in again and retry." };
 
   const id = formData.get("id") ? Number(formData.get("id")) : null;
   const title = String(formData.get("title") || "").trim();
   if (!title) return { error: "Please give the article a title." };
 
   const intent = String(formData.get("intent"));
-  const status = intent === "publish" ? "published" : intent === "unpublish" ? "draft" : String(formData.get("status") || "draft");
+  const status =
+    intent === "publish" ? "published" : intent === "unpublish" ? "draft" : String(formData.get("status") || "draft");
 
   // Make sure the slug is unique by appending -2, -3… if needed.
   const base = slugify(String(formData.get("slug") || "") || title) || "article";
@@ -73,14 +63,13 @@ export async function saveArticle(_prev: FormState, formData: FormData): Promise
     slug = `${base}-${n}`;
   }
 
-  const categoryId = formData.get("category_id") ? Number(formData.get("category_id")) : null;
   const fields = {
     title,
     slug,
     excerpt: String(formData.get("excerpt") || "").trim(),
     body: sanitizeArticleHtml(String(formData.get("body") || "")),
     cover_image_url: String(formData.get("cover_image_url") || "") || null,
-    category_id: categoryId,
+    category_id: formData.get("category_id") ? Number(formData.get("category_id")) : null,
     featured: formData.get("featured") === "on",
     status,
     updated_at: new Date().toISOString(),
@@ -89,7 +78,7 @@ export async function saveArticle(_prev: FormState, formData: FormData): Promise
   let savedId = id;
   if (id) {
     const { data: existing } = await supabase.from("articles").select("published_at").eq("id", id).single();
-    const published_at = status === "published" ? existing?.published_at ?? new Date().toISOString() : existing?.published_at ?? null;
+    const published_at = existing?.published_at ?? (status === "published" ? new Date().toISOString() : null);
     const { error } = await supabase.from("articles").update({ ...fields, published_at }).eq("id", id);
     if (error) return { error: error.message };
   } else {
@@ -107,44 +96,50 @@ export async function saveArticle(_prev: FormState, formData: FormData): Promise
     await supabase.from("articles").update({ featured: false }).neq("id", savedId!).eq("featured", true);
   }
 
-  revalidatePath("/", "layout");
-  redirect(`/admin/articles/${savedId}?saved=${status === "published" ? "published" : "draft"}`);
+  return { savedId: savedId!, status };
 }
 
-export async function deleteArticle(formData: FormData) {
-  const { supabase } = await requireStaff();
-  await supabase.from("articles").delete().eq("id", Number(formData.get("id")));
-  revalidatePath("/", "layout");
-  redirect("/admin");
+export async function deleteArticle(id: number) {
+  const { error } = await supabase.from("articles").delete().eq("id", id);
+  if (error) throw error;
 }
 
 // ── Categories ──────────────────────────────────────────────
 
-export async function createCategory(_prev: FormState, formData: FormData): Promise<FormState> {
-  const { supabase } = await requireStaff();
-  const name = String(formData.get("name") || "").trim();
+export async function createCategory(name: string): Promise<FormState> {
+  name = name.trim();
   if (!name) return { error: "Enter a name." };
   const { count } = await supabase.from("categories").select("*", { count: "exact", head: true });
   const { error } = await supabase.from("categories").insert({ name, slug: slugify(name), position: (count ?? 0) + 1 });
   if (error) return { error: error.code === "23505" ? "That section already exists." : error.message };
-  revalidatePath("/", "layout");
   return { message: `Added “${name}”.` };
 }
 
-export async function deleteCategory(formData: FormData) {
-  const { supabase } = await requireStaff();
-  await supabase.from("categories").delete().eq("id", Number(formData.get("id")));
-  revalidatePath("/", "layout");
+export async function deleteCategory(id: number) {
+  const { error } = await supabase.from("categories").delete().eq("id", id);
+  if (error) throw error;
 }
 
 // ── Team ────────────────────────────────────────────────────
 
-export async function setRole(formData: FormData) {
-  const { supabase, user } = await requireStaff(true);
-  const id = String(formData.get("id"));
-  const role = String(formData.get("role"));
-  if (id === user.id) throw new Error("You can't change your own role.");
-  if (!["admin", "editor", "pending"].includes(role)) throw new Error("Unknown role.");
-  await supabase.from("profiles").update({ role }).eq("id", id);
-  revalidatePath("/admin/team");
+export async function setRole(id: string, role: "admin" | "editor" | "pending") {
+  const { error } = await supabase.from("profiles").update({ role }).eq("id", id);
+  if (error) throw error;
+}
+
+// ── Images ──────────────────────────────────────────────────
+
+// Uploads an image to the public "media" bucket and returns its URL.
+export async function uploadImage(file: File) {
+  if (!file.type.startsWith("image/")) throw new Error("Please choose an image file.");
+  if (file.size > 10 * 1024 * 1024) throw new Error("Images must be under 10 MB.");
+
+  const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+  const path = `${new Date().getFullYear()}/${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage.from("media").upload(path, file, {
+    cacheControl: "31536000",
+    contentType: file.type,
+  });
+  if (error) throw new Error(error.message);
+  return supabase.storage.from("media").getPublicUrl(path).data.publicUrl;
 }

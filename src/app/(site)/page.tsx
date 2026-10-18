@@ -1,10 +1,16 @@
+"use client";
+
 import { ArticleCard } from "@/components/ArticleCard";
-import { getPublishedArticles } from "@/lib/articles";
+import { ErrorNote, Loading } from "@/components/States";
+import { fetchPublished } from "@/lib/data";
+import { useQuery } from "@/lib/useQuery";
 
-export default async function HomePage() {
-  const articles = await getPublishedArticles({ limit: 40 });
+export default function HomePage() {
+  const { data: articles, error, loading } = useQuery(() => fetchPublished({ limit: 40 }), []);
 
-  if (articles.length === 0) {
+  if (loading) return <Loading />;
+  if (error) return <ErrorNote error={error} />;
+  if (!articles?.length) {
     return (
       <div className="empty">
         <h1>The first issue is on its way.</h1>

@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { EditorContent, useEditor, useEditorState, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
-import { uploadImage } from "./upload";
+import { uploadImage } from "@/lib/admin";
 
 export function RichTextEditor({ initialHtml, onChange }: { initialHtml: string; onChange: (html: string) => void }) {
   const editor = useEditor({

@@ -1,27 +1,56 @@
-import type { Metadata } from "next";
+"use client";
+
+import { Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArticleCard } from "@/components/ArticleCard";
-import { getPublishedArticles } from "@/lib/articles";
+import { ErrorNote, Loading } from "@/components/States";
+import { fetchPublished } from "@/lib/data";
+import { useQuery } from "@/lib/useQuery";
 
-export const metadata: Metadata = { title: "Search" };
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <Search />
+    </Suspense>
+  );
+}
 
-export default async function SearchPage({ searchParams }: PageProps<"/search">) {
-  const raw = (await searchParams).q;
-  const q = (Array.isArray(raw) ? raw[0] : raw)?.trim() ?? "";
-  const articles = q ? await getPublishedArticles({ search: q }) : [];
+function Search() {
+  const router = useRouter();
+  const q = useSearchParams().get("q")?.trim() ?? "";
+  const { data: articles, error, loading } = useQuery(
+    () => (q ? fetchPublished({ search: q }) : Promise.resolve([])),
+    [q],
+  );
 
   return (
     <>
       <h1 className="page-heading">{q ? <>Results for “{q}”</> : "Search"}</h1>
-      <form action="/search" className="search-form">
-        <input name="q" type="search" defaultValue={q} placeholder="Search articles" autoFocus />
+      <form
+        className="search-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          const next = String(new FormData(e.currentTarget).get("q") ?? "");
+          router.push(`/search/?q=${encodeURIComponent(next)}`);
+        }}
+      >
+        <input key={q} name="q" type="search" defaultValue={q} placeholder="Search articles" autoFocus />
         <button type="submit">Search</button>
       </form>
-      {q && articles.length === 0 && <p className="muted">No articles matched.</p>}
-      <div className="grid">
-        {articles.map((a) => (
-          <ArticleCard key={a.id} article={a} />
-        ))}
-      </div>
+      {loading ? (
+        <Loading />
+      ) : error ? (
+        <ErrorNote error={error} />
+      ) : (
+        <>
+          {q && articles?.length === 0 && <p className="muted">No articles matched.</p>}
+          <div className="grid">
+            {articles?.map((a) => (
+              <ArticleCard key={a.id} article={a} />
+            ))}
+          </div>
+        </>
+      )}
     </>
   );
 }
