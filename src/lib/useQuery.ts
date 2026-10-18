@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { isConfigured } from "@/lib/supabase";
 
 type Result<T> = { key: string; data?: T; error: Error | null };
 
@@ -12,7 +13,9 @@ export function useQuery<T>(fn: () => Promise<T>, deps: unknown[]) {
 
   useEffect(() => {
     let cancelled = false;
-    fn()
+    // Without Supabase keys every request would hang, so fail straight away.
+    const run = isConfigured ? fn : () => Promise.reject(new Error("Supabase is not configured"));
+    run()
       .then((data) => !cancelled && setResult({ key, data, error: null }))
       .catch((e) => !cancelled && setResult({ key, error: e instanceof Error ? e : new Error(String(e?.message ?? e)) }));
     return () => {
