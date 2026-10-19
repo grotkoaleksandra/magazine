@@ -274,67 +274,49 @@ img { max-width: 100%; display: block; }
 /* Red hollow rows of the name, stepping sideways like dropped frames. */
 .hero-outlines {
   position: absolute; z-index: 2; left: 0; right: 0; top: 0;
-  bottom: calc(var(--hero-pad) + var(--hero-size) * 0.92);
+  bottom: calc(var(--hero-pad) + var(--hero-size) * 0.95 + 34px);
   display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; pointer-events: none;
   opacity: 0;
 }
-.is-settled .hero-outlines { opacity: 0.9; animation: tv-on 0.7s steps(5) 0.6s backwards; }
+.is-settled .hero-outlines { opacity: 0.16; animation: tv-on 0.7s steps(5) 0.6s backwards; }
 @keyframes tv-on {
   0% { opacity: 0; transform: scaleY(0.02); } 40% { opacity: 1; transform: scaleY(0.04); }
-  60% { transform: scaleY(1.05); filter: brightness(2); } 100% { opacity: 0.9; transform: none; }
+  60% { transform: scaleY(1.05); filter: brightness(2); } 100% { opacity: 0.16; transform: none; }
 }
 .outline-row {
-  font-family: var(--brand); font-weight: 800; font-size: var(--hero-size); line-height: 0.95; letter-spacing: var(--brand-track);
-  white-space: nowrap; color: transparent; -webkit-text-stroke: 2px var(--accent);
-  text-transform: lowercase; flex-shrink: 0;
+  font-family: var(--brand); font-weight: 100; font-size: var(--hero-size); line-height: 0.95; letter-spacing: -0.02em;
+  white-space: nowrap; color: var(--accent); text-transform: lowercase; flex-shrink: 0;
 }
 .outline-row span { display: inline-block; animation: drift 48s steps(160) infinite; }
 .outline-row.rev span { animation-direction: reverse; animation-duration: 56s; }
 .outline-row:nth-child(3n) span { animation-duration: 40s; }
 @keyframes drift { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
+/* Caption + wordmark as one unit; the whole unit inverts against the video. */
+.hero-mark {
+  position: absolute; z-index: 3; left: var(--hero-pad); right: var(--hero-pad);
+  bottom: calc(50% - var(--hero-size) * 0.5);
+  display: flex; justify-content: center; pointer-events: none;
+  mix-blend-mode: difference;
+  transition: bottom 1.3s cubic-bezier(0.7, 0, 0.2, 1);
+}
+.is-settled .hero-mark { bottom: var(--hero-pad); }
+.hero-mark-inner { display: flex; flex-direction: column; min-width: 0; }
 .hero-caption {
-  position: absolute; z-index: 3; margin: 0;
-  left: 34%; right: var(--hero-pad); bottom: calc(var(--hero-pad) + var(--hero-size) * 0.98);
-  display: flex; align-items: flex-end; gap: 8px;
-  font-family: var(--sans); font-size: 14px; font-weight: 700; color: #fff; mix-blend-mode: difference;
+  display: flex; align-items: center; gap: 10px; margin: 0 0.4em 14px 30%;
+  font-family: var(--sans); font-size: 14px; font-weight: 700; color: #fff; white-space: nowrap;
   opacity: 0; transition: opacity 0.4s steps(2) 1.2s;
 }
-.hero-caption .hero-rule { flex: 1; border-bottom: 2px solid currentColor; margin-bottom: 4px; }
+.hero-caption .hero-rule { flex: 1; min-width: 40px; border-top: 2px solid currentColor; }
 .is-settled .hero-caption { opacity: 1; }
 
 .hero-title {
-  position: absolute; z-index: 3; left: var(--hero-pad); right: var(--hero-pad); margin: 0;
-  top: 50%; transform: translateY(-50%);
-  text-align: center; white-space: nowrap; color: #f4f0e6;
+  margin: 0; text-align: center; white-space: nowrap; color: #f4f0e6;
   font-family: var(--brand); font-weight: 800; text-transform: lowercase; letter-spacing: var(--brand-track); line-height: 0.82;
   font-size: var(--hero-size);
   -webkit-mask-image: var(--speckle); mask-image: var(--speckle); -webkit-mask-size: 260px; mask-size: 260px;
-  /* White + difference = the inverse of whatever is behind each pixel. */
-  mix-blend-mode: difference;
-  transition: top 1.3s cubic-bezier(0.7, 0, 0.2, 1), transform 1.3s cubic-bezier(0.7, 0, 0.2, 1);
-}
-.is-settled .hero-title {
-  top: calc(100% - var(--hero-pad)); transform: translateY(-100%);
-  animation: rgb-lag 3.2s steps(1) infinite 1.4s, tv-jitter 4.6s steps(1) infinite 1.4s;
 }
 .hero-bar { mix-blend-mode: difference; }
-/* Colour channels slipping out of sync, like a bad signal. */
-@keyframes rgb-lag {
-  0%, 100% { text-shadow: -0.02em 0 rgba(255, 30, 60, 0.6), 0.02em 0 rgba(0, 230, 255, 0.5); }
-  18% { text-shadow: -0.05em 0 rgba(255, 30, 60, 0.75), 0.04em 0 rgba(0, 230, 255, 0.6); }
-  21% { text-shadow: -0.01em 0 rgba(255, 30, 60, 0.5), 0.01em 0 rgba(0, 230, 255, 0.4); }
-  54% { text-shadow: 0.06em 0 rgba(255, 30, 60, 0.7), -0.03em 0 rgba(0, 230, 255, 0.6); }
-  57% { text-shadow: -0.02em 0 rgba(255, 30, 60, 0.6), 0.02em 0 rgba(0, 230, 255, 0.5); }
-}
-/* Occasional dropped frames: a jump, a skew, a torn slice. */
-@keyframes tv-jitter {
-  0% { translate: 0 0; clip-path: none; }
-  11% { translate: 6px 0; } 12% { translate: 0 0; }
-  37% { translate: -4px 2px; clip-path: inset(0 0 52% 0); } 38% { translate: 10px 0; clip-path: inset(48% 0 0 0); } 39% { translate: 0 0; clip-path: none; }
-  64% { translate: 0 -3px; } 65% { translate: 0 0; }
-  82% { translate: -12px 0; clip-path: inset(30% 0 40% 0); } 83% { translate: 0 0; clip-path: none; }
-}
 .hero-title .ch { opacity: 0; }
 .hero-title .ch.on { opacity: 1; }
 .hero-title .caret {
@@ -404,7 +386,6 @@ img { max-width: 100%; display: block; }
   .board { grid-template-columns: 1fr; }
   .story-cover { margin-left: 0; margin-right: 0; }
   .grid { grid-template-columns: repeat(2, 1fr); }
-  .hero-caption { left: var(--hero-pad); }
 }
 @media (max-width: 640px) {
   .container { padding: 0 16px; }
@@ -422,10 +403,11 @@ img { max-width: 100%; display: block; }
   .account-join { padding: 4px 8px; }
   .hero { --hero-size: 15vw; }
   .hero-title { white-space: normal; text-wrap: balance; }
-  .hero-outlines { bottom: calc(var(--hero-pad) + var(--hero-size) * 1.8); }
-  .hero-caption { bottom: calc(var(--hero-pad) + var(--hero-size) * 1.85); font-size: 12px; }
+  .hero-outlines { bottom: calc(var(--hero-pad) + var(--hero-size) * 1.7 + 30px); }
+  .hero-mark { bottom: calc(50% - var(--hero-size)); }
+  .hero-caption { margin-left: 0; font-size: 11px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .hero-title, .hero-curtain, .hero-bar, .hero-caption { transition: none; }
-  .hero-grain, .hero-flash, .hero-tracking, .outline-row span, .is-settled .hero-title, .is-settled .hero-outlines { animation: none; }
+  .hero-mark, .hero-curtain, .hero-bar, .hero-caption { transition: none; }
+  .hero-grain, .hero-flash, .hero-tracking, .outline-row span, .is-settled .hero-outlines { animation: none; }
 }

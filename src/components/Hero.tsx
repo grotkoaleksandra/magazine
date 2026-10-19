@@ -130,7 +130,7 @@ export function Hero({ videoUrl, ready }: { videoUrl?: string; ready: boolean })
       <div className="hero-grain" aria-hidden />
       <div className="hero-tracking" aria-hidden />
 
-      {/* Hollow outline rows of the name, drifting choppily like a lagging feed. */}
+      {/* Faint thin rows of the name, drifting choppily like a lagging feed. */}
       <div className="hero-outlines" aria-hidden>
         {[0, 1, 2, 3, 4, 5].map((r) => (
           <div key={r} className={`outline-row ${r % 2 ? "rev" : ""}`}>
@@ -139,11 +139,6 @@ export function Hero({ videoUrl, ready }: { videoUrl?: string; ready: boolean })
         ))}
       </div>
 
-      <p className="hero-caption" aria-hidden={!settled}>
-        <span>{site.tagline.toLowerCase()}</span>
-        <span className="hero-rule" />
-        <span>issue nº 01</span>
-      </p>
       <div className="hero-curtain" aria-hidden />
 
       <div className="hero-bar">
@@ -151,15 +146,25 @@ export function Hero({ videoUrl, ready }: { videoUrl?: string; ready: boolean })
         <AccountNav />
       </div>
 
-      <h1 className="hero-title" aria-label={site.name}>
-        {Array.from(text).map((ch, i) => (
-          <span key={i} aria-hidden className={i < count ? "ch on" : "ch"}>
-            {i === count && !settled && <span className="caret" />}
-            {ch}
-          </span>
-        ))}
-        {count >= text.length && !settled && <span className="caret" />}
-      </h1>
+      {/* Caption + wordmark move as one unit, so the rule always sits right above the word. */}
+      <div className="hero-mark">
+        <div className="hero-mark-inner">
+          <p className="hero-caption" aria-hidden={!settled}>
+            <span>{site.tagline.toLowerCase()}</span>
+            <span className="hero-rule" />
+            <span>issue nº 01</span>
+          </p>
+          <h1 className="hero-title" aria-label={site.name}>
+            {Array.from(text).map((ch, i) => (
+              <span key={i} aria-hidden className={i < count ? "ch on" : "ch"}>
+                {i === count && !settled && <span className="caret" />}
+                {ch}
+              </span>
+            ))}
+            {count >= text.length && !settled && <span className="caret" />}
+          </h1>
+        </div>
+      </div>
     </section>
   );
 }
