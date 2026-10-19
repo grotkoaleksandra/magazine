@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Archivo, Bagel_Fat_One, Source_Serif_4, Space_Mono } from "next/font/google";
+import { Archivo, Rubik, Source_Serif_4, Space_Mono } from "next/font/google";
 import { site } from "@/lib/site";
 import "./globals.css";
 
-// Chunky rounded wordmark (à la Drowner), heavy grotesk headlines, glitchy mono labels.
-const brand = Bagel_Fat_One({ variable: "--font-brand", subsets: ["latin", "latin-ext"], weight: "400" });
+// Heavy rounded wordmark (Rubik Black, tightly set, à la Drowner), grotesk headlines, glitchy mono labels.
+const brand = Rubik({ variable: "--font-brand", subsets: ["latin", "latin-ext"], weight: "900" });
 const sans = Archivo({ variable: "--font-sans", subsets: ["latin", "latin-ext"] });
 const mono = Space_Mono({ variable: "--font-mono", subsets: ["latin", "latin-ext"], weight: ["400", "700"] });
 const serif = Source_Serif_4({ variable: "--font-serif", subsets: ["latin", "latin-ext"] });
