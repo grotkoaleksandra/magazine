@@ -4,7 +4,7 @@
   padding: 24px 16px; display: flex; flex-direction: column; gap: 24px;
   position: sticky; top: 0; height: 100vh;
 }
-.admin-brand { font-family: var(--brand); font-weight: 900; letter-spacing: -0.04em; text-transform: lowercase; font-size: 28px; line-height: 0.9; padding: 0 8px; }
+.admin-brand { font-family: var(--brand); font-weight: 800; letter-spacing: -0.04em; text-transform: lowercase; font-size: 28px; line-height: 0.9; padding: 0 8px; }
 .admin-nav nav { display: flex; flex-direction: column; gap: 2px; }
 .admin-nav nav .btn { margin-bottom: 12px; }
 .admin-nav nav a:not(.btn) { padding: 8px; border-radius: 4px; font-size: 14px; font-weight: 500; }
@@ -13,7 +13,7 @@
 .admin-main { padding: 32px 40px 80px; max-width: 1280px; width: 100%; }
 
 .admin-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
-.admin-header h1 { font-family: var(--brand); font-weight: 900; letter-spacing: -0.04em; text-transform: lowercase; font-size: 44px; line-height: 0.9; margin: 0; }
+.admin-header h1 { font-family: var(--brand); font-weight: 800; letter-spacing: -0.04em; text-transform: lowercase; font-size: 44px; line-height: 0.9; margin: 0; }
 .admin-header .actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .back-link { font-size: 13px; }
 
