@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
 import { signIn, signOut, signUp, type FormState } from "@/lib/admin";
-import { site } from "@/lib/site";
+import { Wordmark } from "@/components/Wordmark";
 import { supabase } from "@/lib/supabase";
 import { isStaffRole, type Profile } from "@/lib/types";
 
@@ -77,8 +77,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     <StaffContext.Provider value={{ user, profile, staff, reloadProfile: () => load(user) }}>
       <div className="admin">
         <aside className="admin-nav">
-          <Link href="/admin/" className="admin-brand">
-            {site.name}
+          {/* The logo goes back to the magazine; "Articles" below is the articles list. */}
+          <Link href="/" className="admin-brand" title="Back to the magazine">
+            <Wordmark />
           </Link>
           <nav>
             <Link href="/admin/edit/" className="btn btn-primary">
@@ -129,7 +130,7 @@ function LoginScreen({ onStart, onDone }: { onStart: () => void; onDone: (ok: bo
     <main className="auth">
       <div className="auth-card">
         <Link href="/" className="auth-brand">
-          {site.name}
+          <Wordmark />
         </Link>
         <p className="muted">{mode === "in" ? "Log in to your account" : "Become a member to contribute to the Members\u2019 Board"}</p>
         <form action={mode === "in" ? inAction : upAction} className="auth-form">

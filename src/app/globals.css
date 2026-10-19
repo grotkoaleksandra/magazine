@@ -200,7 +200,7 @@ img { max-width: 100%; display: block; }
 /* ── Buttons & forms (shared with admin) ── */
 .auth { min-height: 100vh; display: grid; place-items: center; padding: 20px; }
 .auth-card { width: 100%; max-width: 400px; background: var(--surface); border: 1px solid var(--ink); padding: 36px; }
-.auth-brand { display: block; font-family: var(--brand); font-weight: 800; text-transform: lowercase; font-size: 44px; line-height: 0.9; margin: 0 0 6px; }
+.auth-brand { display: block; font-family: var(--brand); font-weight: 800; text-transform: uppercase; font-size: 44px; line-height: 0.9; margin: 0 0 6px; }
 .auth-form { display: flex; flex-direction: column; gap: 14px; margin-top: 20px; }
 .auth-form label { display: flex; flex-direction: column; gap: 6px; font-family: var(--mono); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
 .auth-form input {
@@ -413,12 +413,33 @@ img { max-width: 100%; display: block; }
 }
 
 /* Wordmark details: the :) inside the O of BOATS. */
-.ch-o { position: relative; display: inline-block; }
-.ch-o .smile {
-  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -46%);
-  font-size: 0.3em; letter-spacing: -0.08em; line-height: 1; white-space: nowrap;
+.ch-o { position: relative; display: inline-block; line-height: 1; }
+/* Centred on the O's counter, measured from Martian Mono's metrics (line-height fixed at 1). */
+.ch-o .face {
+  position: absolute; left: 0.35em; top: 0.49em; width: 0.24em; height: 0.3em;
+  transform: translate(-50%, -50%); overflow: visible;
+  fill: currentColor; stroke: currentColor;
 }
+.ch-o .face path { fill: none; stroke-width: 3.4; stroke-linecap: round; }
+.ch-o .face circle { stroke: none; }
 /* Headroom so the dots on the Ü stay inside the speckle mask (masks clip to the element box). */
 .hero-title, .masthead-title, .footer-name, .nav-brand { padding-top: 0.22em; margin-top: -0.22em; }
-.ch-o .smile { font-size: 0.4em; transform: translate(-50%, -50%) rotate(90deg); letter-spacing: -0.02em; }
 .wm-word { white-space: nowrap; }
+
+/* ── "The latest" compact list (VICE-style) ── */
+.latest-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; column-gap: 48px; }
+.latest-list li { border-bottom: 1px solid var(--rule); }
+.latest-item { display: grid; grid-template-columns: 96px 1fr; gap: 18px; align-items: start; padding: 18px 0; }
+.latest-thumb { display: block; width: 96px; aspect-ratio: 1; background: var(--surface); overflow: hidden; }
+.latest-thumb img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(0.55) contrast(1.15) brightness(0.88); transition: filter 0.3s steps(3); }
+.latest-item:hover .latest-thumb img { filter: none; }
+.latest-text { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.latest-time { font-family: var(--mono); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); }
+.latest-title { font-family: var(--display); font-weight: 800; font-size: 19px; line-height: 1.22; letter-spacing: -0.01em; }
+.latest-item:hover .latest-title { color: var(--accent); }
+@media (max-width: 760px) {
+  .latest-list { grid-template-columns: 1fr; }
+  .latest-item { grid-template-columns: 80px 1fr; gap: 14px; }
+  .latest-thumb { width: 80px; }
+  .latest-title { font-size: 17px; }
+}

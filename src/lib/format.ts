@@ -33,3 +33,16 @@ export function normalizeTags(input: string) {
     .filter(Boolean);
   return [...new Set(tags)].filter(isTag);
 }
+
+// "3 hours ago", "2 days ago", then a plain date after a month.
+export function timeAgo(iso: string | null) {
+  if (!iso) return "";
+  const s = (Date.now() - new Date(iso).getTime()) / 1000;
+  const units: [number, string][] = [[60, "minute"], [3600, "hour"], [86400, "day"], [604800, "week"]];
+  if (s < 60) return "just now";
+  if (s > 30 * 86400) return formatDate(iso);
+  let unit = units[0];
+  for (const u of units) if (s >= u[0]) unit = u;
+  const n = Math.floor(s / unit[0]);
+  return `${n} ${unit[1]}${n === 1 ? "" : "s"} ago`;
+}

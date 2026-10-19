@@ -10,7 +10,12 @@ export function WordmarkChar({ ch }: { ch: string }) {
   if (ch === "O:)") {
     return (
       <span className="ch-o">
-        O<span className="smile">:)</span>
+        O
+        <svg className="face" viewBox="0 0 26 32" aria-hidden>
+          <circle cx="7.5" cy="10" r="3" />
+          <circle cx="18.5" cy="10" r="3" />
+          <path d="M5 19.5 Q13 28 21 19.5" />
+        </svg>
       </span>
     );
   }

@@ -4,7 +4,7 @@
   padding: 24px 16px; display: flex; flex-direction: column; gap: 24px;
   position: sticky; top: 0; height: 100vh;
 }
-.admin-brand { font-family: var(--brand); font-weight: 800; letter-spacing: -0.04em; text-transform: lowercase; font-size: 28px; line-height: 0.9; padding: 0 8px; }
+.admin-brand { font-family: var(--brand); font-weight: 800; letter-spacing: -0.04em; text-transform: uppercase; font-size: 28px; line-height: 0.9; padding: 0 8px; }
 .admin-nav nav { display: flex; flex-direction: column; gap: 2px; }
 .admin-nav nav .btn { margin-bottom: 12px; }
 .admin-nav nav a:not(.btn) { padding: 8px; border-radius: 4px; font-size: 14px; font-weight: 500; }

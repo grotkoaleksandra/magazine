@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Masonry } from "@/components/Masonry";
+import { LatestList } from "@/components/LatestList";
 import { Hero } from "@/components/Hero";
 import { SectionNav } from "@/components/SiteHeader";
 import { ErrorNote, Loading } from "@/components/States";
@@ -63,8 +64,8 @@ function FrontPage({
 
       {latest.length > 0 && (
         <section className="home-section">
-          <h2 className="section-heading">latest</h2>
-          <Masonry articles={latest} columns={[2, 1, 1]} />
+          <h2 className="section-heading">the latest</h2>
+          <LatestList articles={latest} />
         </section>
       )}
 

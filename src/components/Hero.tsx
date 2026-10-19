@@ -157,7 +157,6 @@ export function Hero({ videoUrl, ready }: { videoUrl?: string; ready: boolean })
           <p className="hero-caption" aria-hidden={!revealed}>
             <span>{site.tagline.toLowerCase()}</span>
             <span className="hero-rule" />
-            <span>issue nº 01</span>
           </p>
           <h1 className="hero-title" aria-label={site.name}>
             {chars.map((ch, i) => (
