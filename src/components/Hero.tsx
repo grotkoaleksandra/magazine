@@ -33,6 +33,9 @@ export function Hero({ videoUrl, ready }: { videoUrl?: string; ready: boolean })
   const activeRef = useRef(0);
   const [active, setActive] = useState(0);
   const [cuts, setCuts] = useState(0);
+  // Safari in Low Power Mode (and some autoplay settings) refuses to autoplay video.
+  const [blocked, setBlocked] = useState(false);
+  const blockedRef = useRef(false);
 
   const sources = videoUrl ? [videoUrl] : MONTAGE;
   const montage = !videoUrl;
@@ -75,6 +78,37 @@ export function Hero({ videoUrl, ready }: { videoUrl?: string; ready: boolean })
     }
   }, [phase, ready]);
 
+  // Detect blocked autoplay; if so, start playback on the first click, tap or key press.
+  useEffect(() => {
+    const first = videoRefs.current[0];
+    if (!first) return;
+    const markBlocked = () => {
+      blockedRef.current = true;
+      setBlocked(true);
+    };
+    const check = setTimeout(() => {
+      first.play().catch(markBlocked);
+      setTimeout(() => {
+        if (first.paused) markBlocked();
+      }, 600);
+    }, 400);
+    const resume = () => {
+      const v = videoRefs.current[activeRef.current];
+      v?.play()
+        .then(() => {
+          blockedRef.current = false;
+          setBlocked(false);
+        })
+        .catch(() => {});
+    };
+    const events = ["pointerdown", "keydown", "touchend"] as const;
+    events.forEach((e) => window.addEventListener(e, resume));
+    return () => {
+      clearTimeout(check);
+      events.forEach((e) => window.removeEventListener(e, resume));
+    };
+  }, [sources.length]);
+
   // Hard-cut between clips, jumping to a random already-downloaded moment in each.
   // The next clip is cued and started while hidden; we only cut to it once it is
   // actually moving, so every cut lands on live footage instead of a frozen frame.
@@ -102,6 +136,13 @@ export function Hero({ videoUrl, ready }: { videoUrl?: string; ready: boolean })
 
     const cut = () => {
       const videos = videoRefs.current;
+      // Without playback, cutting would just flip between still frames (a slideshow), so wait.
+      if (blockedRef.current) return scheduleNext();
+      if (videos[activeRef.current]?.paused && !document.hidden) {
+        blockedRef.current = true;
+        setBlocked(true);
+        return scheduleNext();
+      }
       // Keep loading the remaining clips in the background, one at a time.
       const pending = videos.find((v) => v && v.preload === "none");
       if (pending) {
@@ -128,7 +169,12 @@ export function Hero({ videoUrl, ready }: { videoUrl?: string; ready: boolean })
         scheduleNext();
       };
       next.currentTime = at!;
-      next.play().catch(() => {});
+      next.play().catch(() => {
+        done = true; // refused to play: stay on the current clip
+        blockedRef.current = true;
+        setBlocked(true);
+        scheduleNext();
+      });
       // Cut as soon as the hidden clip renders a new frame (or after a short safety wait).
       const onTime = () => {
         if (next.currentTime > at! + 0.04) {
@@ -139,7 +185,11 @@ export function Hero({ videoUrl, ready }: { videoUrl?: string; ready: boolean })
       next.addEventListener("timeupdate", onTime);
       setTimeout(() => {
         next.removeEventListener("timeupdate", onTime);
-        swap();
+        if (!next.paused) swap();
+        else if (!done) {
+          done = true;
+          scheduleNext();
+        }
       }, 900);
     };
 
@@ -186,6 +236,16 @@ export function Hero({ videoUrl, ready }: { videoUrl?: string; ready: boolean })
       </div>
 
       <div className="hero-curtain" aria-hidden />
+
+      {blocked && revealed && (
+        <button
+          type="button"
+          className="hero-play"
+          onClick={() => videoRefs.current[activeRef.current]?.play().catch(() => {})}
+        >
+          ▶ tap to play
+        </button>
+      )}
 
       <div className="hero-bar">
         <Today />
