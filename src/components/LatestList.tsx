@@ -3,9 +3,9 @@ import { timeAgo } from "@/lib/format";
 import type { ArticleWithMeta } from "@/lib/types";
 
 // Compact "the latest" rail (à la VICE): small square photo, time, headline.
-export function LatestList({ articles }: { articles: ArticleWithMeta[] }) {
+export function LatestList({ articles, single = false }: { articles: ArticleWithMeta[]; single?: boolean }) {
   return (
-    <ol className="latest-list">
+    <ol className={`latest-list ${single ? "latest-single" : ""}`}>
       {articles.map((a) => (
         <li key={a.id}>
           <Link href={`/article/?s=${a.slug}`} className="latest-item">

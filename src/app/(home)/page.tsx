@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { Masonry } from "@/components/Masonry";
 import { LatestList } from "@/components/LatestList";
+import { LeadStory } from "@/components/LeadStory";
+import { ArticleCard } from "@/components/ArticleCard";
 import { Hero } from "@/components/Hero";
 import { SectionNav } from "@/components/SiteHeader";
 import { ErrorNote, Loading } from "@/components/States";
@@ -57,20 +59,33 @@ function FrontPage({
     );
   }
 
+  const [lead, second, ...moreFeatured] = front;
   const shown = new Set(front.map((a) => a.id));
-  const latest = magazine.filter((a) => !shown.has(a.id));
+  const latest = [...magazine, ...board]
+    .filter((a) => !shown.has(a.id))
+    .sort((x, y) => (y.published_at ?? "").localeCompare(x.published_at ?? ""));
 
   return (
     <>
-      <section className="home-section">
-        <h2 className="section-heading">{featured.length > 0 ? "featured" : "latest"}</h2>
-        <Masonry articles={front} columns={[1, 1, 2]} leadWide />
-      </section>
+      {lead && (
+        <section className="front-top">
+          <LeadStory article={lead} />
+          <aside className="front-rail">
+            {second && <ArticleCard article={second} ratio={16 / 10} />}
+            {latest.length > 0 && (
+              <div className="rail-latest">
+                <h2 className="rail-heading">the latest</h2>
+                <LatestList articles={latest.slice(0, 6)} single />
+              </div>
+            )}
+          </aside>
+        </section>
+      )}
 
-      {latest.length > 0 && (
+      {moreFeatured.length > 0 && (
         <section className="home-section">
-          <h2 className="section-heading">the latest</h2>
-          <LatestList articles={latest.slice(0, 10)} />
+          <h2 className="section-heading">featured</h2>
+          <Masonry articles={moreFeatured} columns={[1, 1, 2]} leadWide />
         </section>
       )}
 
