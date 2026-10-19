@@ -88,7 +88,7 @@ img { max-width: 100%; display: block; }
 .section-nav .nav-board { color: var(--accent); }
 .section-nav-sticky {
   position: sticky; top: 0; z-index: 10; border-top: 0; border-bottom: 1px solid var(--ink);
-  background: rgba(14, 13, 11, 0.92); backdrop-filter: blur(6px);
+  background: var(--paper);
 }
 .section-nav-sticky .container { justify-content: flex-start; }
 .nav-brand { font-family: var(--brand); font-weight: 800; font-size: 20px; letter-spacing: -0.04em; text-transform: uppercase; margin-right: auto; }

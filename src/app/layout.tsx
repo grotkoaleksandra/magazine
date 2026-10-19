@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Archivo, Martian_Mono, Source_Serif_4 } from "next/font/google";
 import { site } from "@/lib/site";
 import "./globals.css";
@@ -12,6 +12,9 @@ export const metadata: Metadata = {
   title: { default: site.name, template: `%s — ${site.name}` },
   description: site.description,
 };
+
+// Paint the phone's status bar / browser chrome in the site's black so the page never shows through above the menu.
+export const viewport: Viewport = { themeColor: "#0e0d0b", colorScheme: "dark" };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
