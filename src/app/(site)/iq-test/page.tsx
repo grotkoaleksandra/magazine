@@ -7,21 +7,21 @@ type Question = { q: string; answers: [string, number][] };
 
 // Points are meaningless. That is the point.
 const QUESTIONS: Question[] = [
-  { q: "Which sock colours are acceptable?", answers: [["Purple, blue and green. Uniqlo only.", 40], ["Black, like a normal person", 5], ["Red", -10], ["I don't wear socks, I wear vibes", 25]] },
-  { q: "Is soup a drink?", answers: [["Yes", 10], ["No", 10], ["Only in a mug", 30], ["I am the soup", 50]] },
-  { q: "How long does paint take to dry?", answers: [["About 40 minutes", 5], ["41 days", 30], ["Until you find yourself", 45], ["Paint never truly dries", 60]] },
-  { q: "Ponchki the cyborg pug throws you a ball. You:", answers: [["Fetch it", 8], ["Calculate its trajectory and lie down", 50], ["Ask for a firmware update", 35], ["Bark", 20]] },
-  { q: "What is 2 + 2?", answers: [["4", 3], ["22", 25], ["Fish", 40], ["Depends on the khachapuri", 55]] },
-  { q: "How many spoons does a kitchen need?", answers: [["Two. The rest are decorative cutlery.", 45], ["Thirteen", 10], ["Zero, I drink everything (see question 2)", 30], ["One, if it feels like a handshake", 50]] },
-  { q: "What belongs at track seven of every playlist?", answers: [["ABBA", 50], ["Silence", 15], ["A field recording of a pigeon union meeting", 35], ["ABBA, again", 60]] },
-  { q: "It's 3 a.m. in a Żabka. You buy:", answers: [["A hot dog", 20], ["Nothing. You just stand there.", 35], ["41 tins of eggshell white", 50], ["Enlightenment", 45]] },
+  { q: "A train leaves at 9:00 going 80 km/h. What colour is the driver's hat?", answers: [["Blue", 20], ["80", 10], ["Trains don't wear hats", 45], ["I am the train", 60]] },
+  { q: "Which is heavier: a kilo of feathers or a kilo of bricks?", answers: [["Bricks", 0], ["Feathers", 20], ["They weigh the same", 30], ["Emotionally, the feathers", 55]] },
+  { q: "You overtake the person in second place. What place are you in now?", answers: [["First", 5], ["Second", 30], ["Last, I was running the wrong way", 45], ["Races are a social construct", 55]] },
+  { q: "How many holes does a straw have?", answers: [["One", 25], ["Two", 25], ["None, it's a tube", 40], ["I don't drink, I absorb", 55]] },
+  { q: "Pick the odd one out: apple, banana, Tuesday, cherry.", answers: [["Tuesday", 20], ["Banana", 35], ["Apple", 30], ["Me", 55]] },
+  { q: "You find a door that says \u201cDo not open\u201d. You:", answers: [["Don't open it", 5], ["Open it", 30], ["Knock politely and wait", 40], ["Become the door", 60]] },
+  { q: "What comes next: 2, 4, 8, \u2026?", answers: [["16", 10], ["9", 30], ["A small dog", 50], ["Lunch", 45]] },
+  { q: "How many months have 28 days?", answers: [["One", 10], ["All of them", 30], ["Depends on the moon's mood", 45], ["I refuse to count", 55]] },
 ];
 
 const RESULTS: { min: number; iq: string; title: string; text: string }[] = [
-  { min: 380, iq: "∞", title: "Certified Sock Philosopher", text: "Your brain is purple, blue and green. Michael Karnow has been notified and is very proud of you." },
-  { min: 300, iq: "404", title: "Genius Not Found", text: "Our instruments broke trying to measure you. Ponchki has filed an incident report." },
-  { min: 220, iq: "141", title: "Drying Nicely", text: "You are touch-dry but not fully cured. Sit with yourself for another three to five business days." },
-  { min: 140, iq: "88", title: "Pigeon Union Delegate", text: "Solid instincts, strong opinions about breadcrumbs. Not stupid, just extremely Warsaw." },
+  { min: 380, iq: "\u221e", title: "Galaxy Brain", text: "Scientists would like your brain in a jar. Politely decline and walk away slowly." },
+  { min: 300, iq: "404", title: "Genius Not Found", text: "Our instruments broke trying to measure you. An engineer is on the way. He looks nervous." },
+  { min: 220, iq: "141", title: "Suspiciously Clever", text: "Smart enough to be dangerous, silly enough to be fun. Stay exactly like this." },
+  { min: 140, iq: "88", title: "Perfectly Average Goblin", text: "Solid instincts, questionable logic. You would survive the apocalypse entirely by accident." },
   { min: -100, iq: "12", title: "Normal Person", text: "You answered sensibly. Frankly, that is the most worrying result of all. Please take the test again." },
 ];
 
@@ -100,7 +100,7 @@ export default function IqTestPage() {
             <span style={{ width: `${progress}%` }} />
           </div>
           <p className="iq-scan-log">
-            {progress < 30 ? "locating brain…" : progress < 60 ? "brain located (small)" : progress < 90 ? "consulting ponchki…" : "applying sock correction…"}
+            {progress < 30 ? "locating brain…" : progress < 60 ? "brain located (small)" : progress < 90 ? "consulting a magic 8-ball…" : "rounding up generously…"}
           </p>
         </div>
       )}
