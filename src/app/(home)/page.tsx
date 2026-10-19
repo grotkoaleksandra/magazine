@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArticleCard } from "@/components/ArticleCard";
+import { Masonry } from "@/components/Masonry";
 import { Hero } from "@/components/Hero";
 import { SectionNav } from "@/components/SiteHeader";
 import { ErrorNote, Loading } from "@/components/States";
@@ -51,68 +51,35 @@ function FrontPage({
     );
   }
 
-  const [lead, ...moreFeatured] = front;
-  const side = moreFeatured.slice(0, 3);
-  const featuredGrid = moreFeatured.slice(3);
   const shown = new Set(front.map((a) => a.id));
   const latest = magazine.filter((a) => !shown.has(a.id));
 
   return (
     <>
-      {lead && (
-        <section className="front">
-          <div className="front-lead">
-            {featured.length > 0 && <h2 className="eyebrow">Featured</h2>}
-            <ArticleCard article={lead} size="lg" />
-          </div>
-          {side.length > 0 && (
-            <div className="front-side">
-              {side.map((a) => (
-                <ArticleCard key={a.id} article={a} size="sm" />
-              ))}
-            </div>
-          )}
-        </section>
-      )}
-
-      {featuredGrid.length > 0 && (
-        <section className="home-section">
-          <h2 className="section-heading">More featured</h2>
-          <div className="grid">
-            {featuredGrid.map((a) => (
-              <ArticleCard key={a.id} article={a} />
-            ))}
-          </div>
-        </section>
-      )}
+      <section className="home-section">
+        <h2 className="section-heading">{featured.length > 0 ? "featured" : "latest"}</h2>
+        <Masonry articles={front} columns={[1, 1, 2]} leadWide />
+      </section>
 
       {latest.length > 0 && (
         <section className="home-section">
-          <h2 className="section-heading">Latest</h2>
-          <div className="grid">
-            {latest.map((a) => (
-              <ArticleCard key={a.id} article={a} />
-            ))}
-          </div>
+          <h2 className="section-heading">latest</h2>
+          <Masonry articles={latest} columns={[2, 1, 1]} />
         </section>
       )}
 
       <section className="home-section board-strip">
         <div className="board-strip-head">
-          <h2 className="section-heading">From the {BOARD_NAME}</h2>
+          <h2 className="section-heading">from the {BOARD_NAME.toLowerCase()}</h2>
           <Link href="/members/" className="btn">
             See the board
           </Link>
         </div>
         {board.length ? (
-          <div className="grid">
-            {board.map((a) => (
-              <ArticleCard key={a.id} article={a} />
-            ))}
-          </div>
+          <Masonry articles={board} columns={[1, 1, 1]} />
         ) : (
           <p className="muted">
-            Members can write for the board. <Link href="/admin/">Join and write the first post →</Link>
+            Members can write for the board. <Link href="/admin/?join=1">Join and write the first post →</Link>
           </p>
         )}
       </section>

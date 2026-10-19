@@ -19,7 +19,7 @@ const CUT_MAX_MS = 1300;
 // itself out in the centre; once the page has loaded it glides to the bottom.
 // The text inverts against the video behind it, pixel by pixel (mix-blend-mode: difference).
 export function Hero({ videoUrl, ready }: { videoUrl?: string; ready: boolean }) {
-  const text = site.name;
+  const text = site.name.toLowerCase();
   const [count, setCount] = useState(0);
   const [phase, setPhase] = useState<Phase>("typing");
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
@@ -93,6 +93,11 @@ export function Hero({ videoUrl, ready }: { videoUrl?: string; ready: boolean })
         activeRef.current = i;
         setActive(i);
         setCuts((c) => c + 1);
+        // Like a bad connection: now and then the picture freezes for a moment.
+        if (Math.random() < 0.3) {
+          setTimeout(() => v!.pause(), 120);
+          setTimeout(() => v!.play().catch(() => {}), 120 + 90 + Math.random() * 260);
+        }
       }
       timer = setTimeout(cut, CUT_MIN_MS + Math.random() * (CUT_MAX_MS - CUT_MIN_MS));
     };
@@ -121,12 +126,24 @@ export function Hero({ videoUrl, ready }: { videoUrl?: string; ready: boolean })
           preload={i < 2 ? "auto" : "none"}
         />
       ))}
-      {montage && (
-        <>
-          <div key={cuts} className="hero-flash" aria-hidden />
-          <div className="hero-grain" aria-hidden />
-        </>
-      )}
+      {montage && <div key={cuts} className="hero-flash" aria-hidden />}
+      <div className="hero-grain" aria-hidden />
+      <div className="hero-tracking" aria-hidden />
+
+      {/* Hollow outline rows of the name, drifting choppily like a lagging feed. */}
+      <div className="hero-outlines" aria-hidden>
+        {[0, 1, 2, 3, 4, 5].map((r) => (
+          <div key={r} className={`outline-row ${r % 2 ? "rev" : ""}`}>
+            <span>{`${text} · `.repeat(6)}</span>
+          </div>
+        ))}
+      </div>
+
+      <p className="hero-caption" aria-hidden={!settled}>
+        <span>{site.tagline.toLowerCase()}</span>
+        <span className="hero-rule" />
+        <span>issue nº 01</span>
+      </p>
       <div className="hero-curtain" aria-hidden />
 
       <div className="hero-bar">
@@ -134,7 +151,7 @@ export function Hero({ videoUrl, ready }: { videoUrl?: string; ready: boolean })
         <AccountNav />
       </div>
 
-      <h1 className="hero-title" aria-label={text}>
+      <h1 className="hero-title" aria-label={site.name}>
         {Array.from(text).map((ch, i) => (
           <span key={i} aria-hidden className={i < count ? "ch on" : "ch"}>
             {i === count && !settled && <span className="caret" />}

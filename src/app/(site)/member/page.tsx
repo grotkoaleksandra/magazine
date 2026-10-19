@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { ArticleCard } from "@/components/ArticleCard";
+import { Masonry } from "@/components/Masonry";
 import { Avatar } from "@/components/Avatar";
 import { ErrorNote, Loading } from "@/components/States";
 import { fetchAuthor, fetchPublished } from "@/lib/data";
@@ -48,11 +48,7 @@ function Member() {
       {posts.length === 0 ? (
         <p className="muted">No published posts yet.</p>
       ) : (
-        <div className="grid">
-          {posts.map((a) => (
-            <ArticleCard key={a.id} article={a} />
-          ))}
-        </div>
+        <Masonry articles={posts} columns={[1, 2, 1]} />
       )}
     </>
   );

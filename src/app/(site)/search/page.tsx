@@ -2,7 +2,7 @@
 
 import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArticleCard } from "@/components/ArticleCard";
+import { Masonry } from "@/components/Masonry";
 import { ErrorNote, Loading } from "@/components/States";
 import { BOARD_NAME, fetchCategories, fetchPublished, fetchTagCounts } from "@/lib/data";
 import { normalizeTags } from "@/lib/format";
@@ -100,7 +100,10 @@ function Search() {
 
         {meta?.tags && meta.tags.length > 0 && (
           <div className="filter-row tag-cloud" role="group" aria-label="Tags">
-            {meta.tags.map(({ tag, count }) => (
+            {/* The five most-used tags, plus any you've already picked; everything else is found by typing. */}
+            {meta.tags
+              .filter(({ tag }, i) => i < 5 || filters.tags.includes(tag))
+              .map(({ tag, count }) => (
               <button
                 key={tag}
                 type="button"
@@ -110,7 +113,7 @@ function Search() {
               >
                 #{tag} <span className="chip-count">{count}</span>
               </button>
-            ))}
+              ))}
           </div>
         )}
 
@@ -134,11 +137,7 @@ function Search() {
       ) : articles?.length === 0 ? (
         <p className="muted">Nothing matches. Try removing a filter.</p>
       ) : (
-        <div className="grid">
-          {articles?.map((a) => (
-            <ArticleCard key={a.id} article={a} />
-          ))}
-        </div>
+        <Masonry articles={articles ?? []} columns={[1, 1, 2]} />
       )}
     </>
   );

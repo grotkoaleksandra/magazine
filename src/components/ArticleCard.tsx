@@ -33,13 +33,21 @@ export function Byline({ article, date }: { article: ArticleWithMeta; date?: str
   );
 }
 
-export function ArticleCard({ article, size = "md" }: { article: ArticleWithMeta; size?: "lg" | "md" | "sm" }) {
+export function ArticleCard({
+  article,
+  size = "md",
+  ratio,
+}: {
+  article: ArticleWithMeta;
+  size?: "lg" | "md" | "sm";
+  ratio?: number;
+}) {
   return (
     <article className={`card card-${size}`}>
       {article.cover_image_url && size !== "sm" && (
         <Link href={`/article/?s=${article.slug}`} className="card-image">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={article.cover_image_url} alt="" loading="lazy" />
+          <img src={article.cover_image_url} alt="" loading="lazy" style={ratio ? { aspectRatio: ratio } : undefined} />
         </Link>
       )}
       <div className="card-body">

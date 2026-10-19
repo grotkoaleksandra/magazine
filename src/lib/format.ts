@@ -29,5 +29,5 @@ export function normalizeTags(input: string) {
     .split(/[\s,]+/)
     .map((t) => t.replace(/^#+/, "").replace(/[^\p{L}\p{N}_-]/gu, ""))
     .filter(Boolean);
-  return [...new Set(tags)].slice(0, 12);
+  return [...new Set(tags)].slice(0, 5);
 }

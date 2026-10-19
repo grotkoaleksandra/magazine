@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { ArticleCard } from "@/components/ArticleCard";
+import { Masonry } from "@/components/Masonry";
 import { ErrorNote, Loading } from "@/components/States";
 import { fetchCategories, fetchPublished } from "@/lib/data";
 import { site } from "@/lib/site";
@@ -38,11 +38,7 @@ function Category() {
       {data.articles.length === 0 ? (
         <p className="muted">Nothing published in {data.category.name} yet.</p>
       ) : (
-        <div className="grid">
-          {data.articles.map((a) => (
-            <ArticleCard key={a.id} article={a} />
-          ))}
-        </div>
+        <Masonry articles={data.articles} columns={[2, 1, 1]} />
       )}
     </>
   );

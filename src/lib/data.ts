@@ -79,3 +79,37 @@ export async function fetchTagCounts() {
   for (const row of data ?? []) for (const t of row.tags ?? []) counts.set(t, (counts.get(t) ?? 0) + 1);
   return [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([tag, count]) => ({ tag, count }));
 }
+
+// "More like this": published articles that share the most tags, then the same section.
+export async function fetchRelated(article: ArticleWithMeta, limit = 6) {
+  const candidates = new Map<number, ArticleWithMeta>();
+  if (article.tags?.length) {
+    const { data } = await supabase
+      .from("articles")
+      .select(ARTICLE_SELECT)
+      .eq("status", "published")
+      .overlaps("tags", article.tags)
+      .neq("id", article.id)
+      .limit(40);
+    for (const a of (data ?? []) as ArticleWithMeta[]) candidates.set(a.id, a);
+  }
+  if (candidates.size < limit) {
+    let q = supabase.from("articles").select(ARTICLE_SELECT).eq("status", "published").neq("id", article.id);
+    q = article.category_id ? q.eq("category_id", article.category_id) : q.eq("kind", article.kind);
+    const { data } = await q.order("published_at", { ascending: false }).limit(limit);
+    for (const a of (data ?? []) as ArticleWithMeta[]) if (!candidates.has(a.id)) candidates.set(a.id, a);
+  }
+
+  const shared = (a: ArticleWithMeta) => a.tags.filter((t) => article.tags.includes(t));
+  const ranked = [...candidates.values()]
+    .map((a) => ({ a, score: shared(a).length * 10 + (a.category_id === article.category_id ? 3 : 0) }))
+    .sort((x, y) => y.score - x.score || (y.a.published_at ?? "").localeCompare(x.a.published_at ?? ""))
+    .slice(0, limit)
+    .map((x) => x.a);
+
+  // Name the tag most of the suggestions have in common, for the heading.
+  const counts = new Map<string, number>();
+  for (const a of ranked) for (const t of shared(a)) counts.set(t, (counts.get(t) ?? 0) + 1);
+  const topTag = [...counts.entries()].sort((x, y) => y[1] - x[1])[0]?.[0];
+  return { articles: ranked, topTag };
+}

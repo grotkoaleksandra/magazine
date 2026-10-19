@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArticleCard } from "@/components/ArticleCard";
+import { Masonry } from "@/components/Masonry";
 import { Avatar } from "@/components/Avatar";
 import { ErrorNote, Loading } from "@/components/States";
 import { BOARD_NAME, fetchContributors, fetchPublished } from "@/lib/data";
@@ -36,11 +36,7 @@ export default function MembersBoardPage() {
             {data!.posts.length === 0 ? (
               <p className="muted">No member posts yet. Be the first.</p>
             ) : (
-              <div className="grid grid-2">
-                {data!.posts.map((a) => (
-                  <ArticleCard key={a.id} article={a} />
-                ))}
-              </div>
+              <Masonry articles={data!.posts} columns={[1, 1]} />
             )}
           </div>
           {data!.contributors.length > 0 && (

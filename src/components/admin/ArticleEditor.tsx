@@ -208,7 +208,7 @@ export function ArticleEditor({
                   defaultValue={(article?.tags ?? []).map((t) => `#${t}`).join(" ")}
                   placeholder="#food #warsaw #thebestof"
                 />
-                <span className="field-hint">Separate with spaces or commas. Readers can filter by these.</span>
+                <span className="field-hint">Up to 5, separated by spaces or commas. Readers can search and filter by these.</span>
               </label>
               {staff && (
                 <label className="checkbox">

@@ -9,6 +9,7 @@ import { readingTime } from "@/lib/format";
 import { Byline, Kicker } from "@/components/ArticleCard";
 import { statusLabel } from "@/lib/types";
 import { Tags } from "@/components/Tags";
+import { Related } from "@/components/Related";
 import { sanitizeArticleHtml } from "@/lib/sanitize";
 import { site } from "@/lib/site";
 import { useQuery } from "@/lib/useQuery";
@@ -43,6 +44,7 @@ function Article() {
   }
 
   return (
+    <>
     <article className="story">
       {article.status !== "published" && (
         <div className="draft-banner">
@@ -70,5 +72,7 @@ function Article() {
         </footer>
       )}
     </article>
+    {article.status === "published" && <Related article={article} />}
+    </>
   );
 }
