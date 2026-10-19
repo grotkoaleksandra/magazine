@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Wordmark } from "@/components/Wordmark";
 import { SectionNav, HeaderSearch, Today } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { AccountNav } from "@/components/AccountNav";
@@ -17,7 +18,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
         </div>
         <div className="container">
           <Link href="/" className="masthead-title">
-            {site.name}
+            <Wordmark />
           </Link>
           <p className="masthead-tagline">{site.tagline}</p>
         </div>

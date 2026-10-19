@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { Wordmark } from "@/components/Wordmark";
 import { useRouter } from "next/navigation";
 import { useSyncExternalStore } from "react";
 import { BOARD_NAME, fetchCategories } from "@/lib/data";
-import { site } from "@/lib/site";
 import { AccountNav } from "@/components/AccountNav";
 import { useQuery } from "@/lib/useQuery";
 
@@ -15,7 +15,7 @@ export function SectionNav({ sticky = false }: { sticky?: boolean }) {
       <div className="container">
         {sticky && (
           <Link href="/" className="nav-brand">
-            {site.name}
+            <Wordmark />
           </Link>
         )}
         <Link href="/">Latest</Link>

@@ -4,22 +4,29 @@ import { useEffect, useRef, useState } from "react";
 import { AccountNav } from "@/components/AccountNav";
 import { Today } from "@/components/SiteHeader";
 import { basePath, site } from "@/lib/site";
+import { WORDMARK, WordmarkChar } from "@/components/Wordmark";
 
-type Phase = "typing" | "typed" | "settled";
+// typing → typed (caret blinks) → panning (name glides down on black) → revealed (video and the rest fade in)
+type Phase = "typing" | "typed" | "panning" | "revealed";
 
-const SEEN_KEY = "byb-intro-seen";
-const TYPE_MS = 95;
+const TYPE_MIN_MS = 130;
+const TYPE_MAX_MS = 230;
+const HOLD_MS = 1300;
+const PAN_MS = 1700;
+
+// Plays on every full page load; skipped when navigating back to the front page within the site.
+let introPlayed = false;
 
 // Built-in punk montage (free Pexels clips in public/hero), used until an admin uploads a video.
 const MONTAGE = [1, 2, 3, 4, 5, 6].map((n) => `${basePath}/hero/punk-${n}.mp4`);
 const CUT_MIN_MS = 700;
 const CUT_MAX_MS = 1300;
 
-// Full-screen front-page hero. On the first visit of a session the title types
-// itself out in the centre; once the page has loaded it glides to the bottom.
+// Full-screen front-page hero. The name types itself out on black, pans down to the
+// bottom, and then the video, caption and outline rows fade in around it.
 // The text inverts against the video behind it, pixel by pixel (mix-blend-mode: difference).
 export function Hero({ videoUrl, ready }: { videoUrl?: string; ready: boolean }) {
-  const text = site.name.toLowerCase();
+  const chars = WORDMARK;
   const [count, setCount] = useState(0);
   const [phase, setPhase] = useState<Phase>("typing");
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
@@ -30,45 +37,42 @@ export function Hero({ videoUrl, ready }: { videoUrl?: string; ready: boolean })
   const sources = videoUrl ? [videoUrl] : MONTAGE;
   const montage = !videoUrl;
 
-  // Type the title, or skip straight to the end for repeat visits / reduced motion.
+  // Type the title letter by letter, or skip straight to the end for in-site navigation / reduced motion.
   useEffect(() => {
-    let seen = false;
-    try {
-      seen = sessionStorage.getItem(SEEN_KEY) === "1";
-    } catch {}
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (seen || reduced) {
+    if (introPlayed || reduced) {
       const t = setTimeout(() => {
-        setCount(text.length);
-        setPhase("settled");
+        setCount(chars.length);
+        setPhase("revealed");
       }, 0);
       return () => clearTimeout(t);
     }
     let i = 0;
-    const timer = setInterval(() => {
+    let timer: ReturnType<typeof setTimeout>;
+    const typeNext = () => {
       i += 1;
       setCount(i);
-      if (i >= text.length) {
-        clearInterval(timer);
-        setPhase((p) => (p === "typing" ? "typed" : p));
-      }
-    }, TYPE_MS);
-    return () => clearInterval(timer);
-  }, [text]);
+      if (i >= chars.length) setPhase("typed");
+      // Uneven rhythm, with a longer beat after each space, like someone typing.
+      else timer = setTimeout(typeNext, TYPE_MIN_MS + Math.random() * (TYPE_MAX_MS - TYPE_MIN_MS) + (chars[i - 1] === " " ? 160 : 0));
+    };
+    timer = setTimeout(typeNext, 600);
+    return () => clearTimeout(timer);
+  }, [chars]);
 
-  // Settle once typing is done and the page content has loaded (or after a fallback wait).
+  // Hold with a blinking caret until the page has loaded, then pan down, then reveal.
   useEffect(() => {
-    if (phase !== "typed") return;
-    const t = setTimeout(
-      () => {
-        setPhase("settled");
-        try {
-          sessionStorage.setItem(SEEN_KEY, "1");
-        } catch {}
-      },
-      ready ? 450 : 2500,
-    );
-    return () => clearTimeout(t);
+    if (phase === "typed") {
+      const t = setTimeout(() => setPhase("panning"), ready ? HOLD_MS : 3500);
+      return () => clearTimeout(t);
+    }
+    if (phase === "panning") {
+      const t = setTimeout(() => {
+        setPhase("revealed");
+        introPlayed = true;
+      }, PAN_MS);
+      return () => clearTimeout(t);
+    }
   }, [phase, ready]);
 
   // Hard-cut between clips, jumping to a random moment in each. Clips load one at a time.
@@ -105,10 +109,11 @@ export function Hero({ videoUrl, ready }: { videoUrl?: string; ready: boolean })
     return () => clearTimeout(timer);
   }, [montage]);
 
-  const settled = phase === "settled";
+  const settled = phase === "panning" || phase === "revealed";
+  const revealed = phase === "revealed";
 
   return (
-    <section className={`hero ${settled ? "is-settled" : ""} ${montage ? "hero-montage" : ""}`}>
+    <section className={`hero ${settled ? "is-settled" : ""} ${revealed ? "is-revealed" : ""} ${montage ? "hero-montage" : ""}`}>
       <div className="hero-fallback" />
       {sources.map((src, i) => (
         <video
@@ -134,7 +139,7 @@ export function Hero({ videoUrl, ready }: { videoUrl?: string; ready: boolean })
       <div className="hero-outlines" aria-hidden>
         {[0, 1, 2, 3, 4, 5].map((r) => (
           <div key={r} className={`outline-row ${r % 2 ? "rev" : ""}`}>
-            <span>{`${text} · `.repeat(6)}</span>
+            <span>{"BÜRN YER BOATS · ".repeat(6)}</span>
           </div>
         ))}
       </div>
@@ -149,19 +154,19 @@ export function Hero({ videoUrl, ready }: { videoUrl?: string; ready: boolean })
       {/* Caption + wordmark move as one unit, so the rule always sits right above the word. */}
       <div className="hero-mark">
         <div className="hero-mark-inner">
-          <p className="hero-caption" aria-hidden={!settled}>
+          <p className="hero-caption" aria-hidden={!revealed}>
             <span>{site.tagline.toLowerCase()}</span>
             <span className="hero-rule" />
             <span>issue nº 01</span>
           </p>
           <h1 className="hero-title" aria-label={site.name}>
-            {Array.from(text).map((ch, i) => (
+            {chars.map((ch, i) => (
               <span key={i} aria-hidden className={i < count ? "ch on" : "ch"}>
-                {i === count && !settled && <span className="caret" />}
-                {ch}
+                {i === count && !revealed && <span className="caret" />}
+                <WordmarkChar ch={ch} />
               </span>
             ))}
-            {count >= text.length && !settled && <span className="caret" />}
+            {count >= chars.length && !revealed && <span className="caret" />}
           </h1>
         </div>
       </div>

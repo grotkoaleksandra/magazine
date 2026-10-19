@@ -69,9 +69,9 @@ img { max-width: 100%; display: block; }
 .masthead-search input:focus { outline: 1px solid var(--accent); border-color: var(--accent); }
 .masthead-title {
   display: block; text-align: center; padding: 8px 0 6px;
-  font-size: clamp(56px, 11vw, 168px);
+  font-size: clamp(56px, 11vw, 168px); text-transform: uppercase;
 }
-.masthead-title { font-family: var(--brand); font-weight: 800; text-transform: lowercase; letter-spacing: var(--brand-track); line-height: 0.85;
+.masthead-title { font-family: var(--brand); font-weight: 800; text-transform: uppercase; letter-spacing: var(--brand-track); line-height: 0.85;
   -webkit-mask-image: var(--speckle); mask-image: var(--speckle); -webkit-mask-size: 260px; mask-size: 260px; }
 .masthead-tagline {
   text-align: center; margin: 6px 0 16px;
@@ -91,7 +91,7 @@ img { max-width: 100%; display: block; }
   background: rgba(14, 13, 11, 0.92); backdrop-filter: blur(6px);
 }
 .section-nav-sticky .container { justify-content: flex-start; }
-.nav-brand { font-family: var(--brand); font-weight: 800; font-size: 20px; letter-spacing: -0.04em; text-transform: lowercase; margin-right: auto; }
+.nav-brand { font-family: var(--brand); font-weight: 800; font-size: 20px; letter-spacing: -0.04em; text-transform: uppercase; margin-right: auto; }
 
 .site-main { padding-top: 48px; padding-bottom: 96px; min-height: 60vh; }
 
@@ -194,7 +194,7 @@ img { max-width: 100%; display: block; }
 
 .site-footer { border-top: 1px solid var(--ink); padding: 40px 0; font-family: var(--mono); font-size: 12px; color: var(--ink-soft); text-transform: lowercase; }
 .site-footer .container { display: flex; gap: 24px; align-items: baseline; flex-wrap: wrap; }
-.footer-name { font-family: var(--brand); font-weight: 800; font-size: 32px; color: var(--ink); text-transform: lowercase; }
+.footer-name { font-family: var(--brand); font-weight: 800; font-size: 32px; color: var(--ink); text-transform: uppercase; }
 .site-footer a { margin-left: auto; color: var(--accent); text-decoration: underline; }
 
 /* ── Buttons & forms (shared with admin) ── */
@@ -260,16 +260,16 @@ img { max-width: 100%; display: block; }
   mix-blend-mode: screen; animation: tracking 7s steps(70) infinite;
 }
 @keyframes tracking { to { transform: translateY(140vh); } }
-.hero-curtain { position: absolute; inset: 0; z-index: 1; background: #050504; transition: opacity 1.2s ease 0.2s; pointer-events: none; }
-.is-settled .hero-curtain { opacity: 0; }
+.hero-curtain { position: absolute; inset: 0; z-index: 1; background: #050504; transition: opacity 1.8s ease; pointer-events: none; }
+.is-revealed .hero-curtain { opacity: 0; }
 
 .hero-bar {
   position: absolute; top: 0; left: 0; right: 0; z-index: 3;
   display: flex; justify-content: space-between; align-items: center; padding: 16px var(--hero-pad);
   font-family: var(--mono); font-size: 12px; text-transform: lowercase; color: var(--hero-ink);
-  opacity: 0; transition: opacity 0.6s steps(3) 0.9s;
+  opacity: 0; transition: opacity 0.6s steps(3) 0.8s;
 }
-.is-settled .hero-bar { opacity: 1; }
+.is-revealed .hero-bar { opacity: 1; }
 
 /* Red hollow rows of the name, stepping sideways like dropped frames. */
 .hero-outlines {
@@ -278,14 +278,14 @@ img { max-width: 100%; display: block; }
   display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; pointer-events: none;
   opacity: 0;
 }
-.is-settled .hero-outlines { opacity: 0.16; animation: tv-on 0.7s steps(5) 0.6s backwards; }
+.is-revealed .hero-outlines { opacity: 0.16; animation: tv-on 0.7s steps(5) 0.5s backwards; }
 @keyframes tv-on {
   0% { opacity: 0; transform: scaleY(0.02); } 40% { opacity: 1; transform: scaleY(0.04); }
   60% { transform: scaleY(1.05); filter: brightness(2); } 100% { opacity: 0.16; transform: none; }
 }
 .outline-row {
   font-family: var(--brand); font-weight: 100; font-size: var(--hero-size); line-height: 0.95; letter-spacing: -0.02em;
-  white-space: nowrap; color: var(--accent); text-transform: lowercase; flex-shrink: 0;
+  white-space: nowrap; color: var(--accent); text-transform: uppercase; flex-shrink: 0;
 }
 .outline-row span { display: inline-block; animation: drift 48s steps(160) infinite; }
 .outline-row.rev span { animation-direction: reverse; animation-duration: 56s; }
@@ -298,21 +298,21 @@ img { max-width: 100%; display: block; }
   bottom: calc(50% - var(--hero-size) * 0.5);
   display: flex; justify-content: center; pointer-events: none;
   mix-blend-mode: difference;
-  transition: bottom 1.3s cubic-bezier(0.7, 0, 0.2, 1);
+  transition: bottom 1.7s cubic-bezier(0.65, 0, 0.25, 1);
 }
 .is-settled .hero-mark { bottom: var(--hero-pad); }
 .hero-mark-inner { display: flex; flex-direction: column; min-width: 0; }
 .hero-caption {
   display: flex; align-items: center; gap: 10px; margin: 0 0.4em 14px 30%;
   font-family: var(--sans); font-size: 14px; font-weight: 700; color: #fff; white-space: nowrap;
-  opacity: 0; transition: opacity 0.4s steps(2) 1.2s;
+  opacity: 0; transition: opacity 0.4s steps(2) 1s;
 }
 .hero-caption .hero-rule { flex: 1; min-width: 40px; border-top: 2px solid currentColor; }
-.is-settled .hero-caption { opacity: 1; }
+.is-revealed .hero-caption { opacity: 1; }
 
 .hero-title {
   margin: 0; text-align: center; white-space: nowrap; color: #f4f0e6;
-  font-family: var(--brand); font-weight: 800; text-transform: lowercase; letter-spacing: var(--brand-track); line-height: 0.82;
+  font-family: var(--brand); font-weight: 800; text-transform: uppercase; letter-spacing: var(--brand-track); line-height: 0.82;
   font-size: var(--hero-size);
   -webkit-mask-image: var(--speckle); mask-image: var(--speckle); -webkit-mask-size: 260px; mask-size: 260px;
 }
@@ -409,5 +409,15 @@ img { max-width: 100%; display: block; }
 }
 @media (prefers-reduced-motion: reduce) {
   .hero-mark, .hero-curtain, .hero-bar, .hero-caption { transition: none; }
-  .hero-grain, .hero-flash, .hero-tracking, .outline-row span, .is-settled .hero-outlines { animation: none; }
+  .hero-grain, .hero-flash, .hero-tracking, .outline-row span, .is-revealed .hero-outlines { animation: none; }
 }
+
+/* Wordmark details: the :) inside the O of BOATS. */
+.ch-o { position: relative; display: inline-block; }
+.ch-o .smile {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -46%);
+  font-size: 0.3em; letter-spacing: -0.08em; line-height: 1; white-space: nowrap;
+}
+/* Headroom so the dots on the Ü stay inside the speckle mask (masks clip to the element box). */
+.hero-title, .masthead-title, .footer-name, .nav-brand { padding-top: 0.22em; margin-top: -0.22em; }
+.ch-o .smile { font-size: 0.4em; transform: translate(-50%, -50%) rotate(90deg); letter-spacing: -0.02em; }
