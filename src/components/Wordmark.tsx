@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { site } from "@/lib/site";
 
 // BÜRN YER B☺ATS — caps, an umlaut on the U and a little :) living inside the O.
@@ -26,12 +27,15 @@ export function Wordmark() {
   return (
     <span aria-label={site.name} role="img" className="wordmark-text">
       {WORDS.map((word, w) => (
-        <span key={w} className="wm-word">
-          {word.map((ch, i) => (
-            <WordmarkChar key={i} ch={ch} />
-          ))}
+        <Fragment key={w}>
+          <span className="wm-word">
+            {word.map((ch, i) => (
+              <WordmarkChar key={i} ch={ch} />
+            ))}
+          </span>
+          {/* The space sits outside the word so the line can break here. */}
           {w < WORDS.length - 1 && " "}
-        </span>
+        </Fragment>
       ))}
     </span>
   );

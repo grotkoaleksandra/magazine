@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Masonry } from "@/components/Masonry";
 import { LatestList } from "@/components/LatestList";
 import { LeadStory } from "@/components/LeadStory";
-import { ArticleCard } from "@/components/ArticleCard";
+import { IqPromo } from "@/components/IqPromo";
 import { Hero } from "@/components/Hero";
 import { SectionNav } from "@/components/SiteHeader";
 import { ErrorNote, Loading } from "@/components/States";
@@ -59,7 +59,9 @@ function FrontPage({
     );
   }
 
-  const [lead, second, ...moreFeatured] = front;
+  // Newest featured leads; every other featured piece sits underneath it, so when a new
+  // article is featured the previous lead simply drops into the list below.
+  const [lead, ...moreFeatured] = front;
   const shown = new Set(front.map((a) => a.id));
   const latest = [...magazine, ...board]
     .filter((a) => !shown.has(a.id))
@@ -69,23 +71,25 @@ function FrontPage({
     <>
       {lead && (
         <section className="front-top">
-          <LeadStory article={lead} />
-          <aside className="front-rail">
-            {second && <ArticleCard article={second} ratio={16 / 10} />}
-            {latest.length > 0 && (
-              <div className="rail-latest">
-                <h2 className="rail-heading">the latest</h2>
-                <LatestList articles={latest.slice(0, 6)} single />
+          <div className="front-main">
+            <LeadStory article={lead} />
+            {moreFeatured.length > 0 && (
+              <div className="front-more">
+                <Masonry articles={moreFeatured} columns={[1, 1]} />
               </div>
             )}
-          </aside>
-        </section>
-      )}
-
-      {moreFeatured.length > 0 && (
-        <section className="home-section">
-          <h2 className="section-heading">featured</h2>
-          <Masonry articles={moreFeatured} columns={[1, 1, 2]} leadWide />
+            <div className="front-promo">
+              <IqPromo />
+            </div>
+          </div>
+          {latest.length > 0 && (
+            <aside className="front-rail">
+              <div className="rail-latest">
+                <h2 className="rail-heading">the latest</h2>
+                <LatestList articles={latest.slice(0, 10)} single />
+              </div>
+            </aside>
+          )}
         </section>
       )}
 
@@ -98,13 +102,23 @@ function FrontPage({
           articles={magazine.filter((a) => a.category?.slug === c.slug)}
         />
       ))}
-      {board.length ? (
-        <CategoryRow title={BOARD_NAME} href="/members/" articles={board} />
-      ) : (
-        <p className="muted">
-          Members can write for the {BOARD_NAME}. <Link href="/admin/?join=1">Join and write the first post →</Link>
-        </p>
-      )}
+      <CategoryRow
+        title={BOARD_NAME}
+        href="/members/"
+        articles={board}
+        intro={
+          <>
+            <p>
+              The {BOARD_NAME} is the part of Burn Yer Boats written by readers, not by us. Anyone can join, write a
+              post about whatever they like (with photos), and send it in. Our editors read everything, publish the
+              best here, and now and then one makes it onto the front page.
+            </p>
+            <Link href="/admin/?join=1" className="btn btn-primary">
+              Become a member to contribute
+            </Link>
+          </>
+        }
+      />
     </>
   );
 }

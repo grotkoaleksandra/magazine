@@ -18,11 +18,12 @@ export default function MembersBoardPage() {
       <header className="board-header">
         <h1 className="page-heading">{BOARD_NAME}</h1>
         <p className="board-intro">
-          Writing from the Burn Yer Boats community. Every member can write for the board, and our editors pick the
-          best for the front page.
+          The part of Burn Yer Boats written by readers, not by us. Anyone can join, write a post about whatever they
+          like (with photos), and send it in. Our editors read everything, publish the best here, and now and then
+          one makes it onto the front page.
         </p>
-        <Link href="/admin/edit/" className="btn btn-primary">
-          Write for the board
+        <Link href="/admin/?join=1" className="btn btn-primary">
+          Become a member to contribute
         </Link>
       </header>
 
