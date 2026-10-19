@@ -131,3 +131,11 @@ label.btn { cursor: pointer; }
 .table th { font-family: var(--mono); }
 .table-title:hover { color: var(--accent); }
 .excerpt-input { color: var(--ink-soft); }
+.tag-picker { border: 0; padding: 0; margin: 0; }
+.tag-picker legend { padding: 0; margin-bottom: 6px; }
+.tag-options { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag-option { display: inline-flex; cursor: pointer; }
+.tag-option input { position: absolute; opacity: 0; pointer-events: none; }
+.tag-option span { font-family: var(--mono); font-size: 12px; text-transform: none; letter-spacing: 0; font-weight: 700; color: var(--accent); border: 1px solid var(--rule); padding: 5px 10px; }
+.tag-option input:checked + span { background: var(--accent); color: #fff; border-color: var(--accent); }
+.tag-option input:focus-visible + span { outline: 2px solid var(--ink); }

@@ -1,3 +1,5 @@
+import { isTag } from "@/lib/tags";
+
 export function slugify(input: string) {
   return input
     .toLowerCase()
@@ -22,12 +24,12 @@ export function readingTime(html: string) {
   return Math.max(1, Math.round(words / 230));
 }
 
-// "#Food, #warsaw  thebestof" → ["food", "warsaw", "thebestof"]
+// "#Events, #people  food" → ["events", "people"] (only the site's five tags are kept)
 export function normalizeTags(input: string) {
   const tags = input
     .toLowerCase()
     .split(/[\s,]+/)
     .map((t) => t.replace(/^#+/, "").replace(/[^\p{L}\p{N}_-]/gu, ""))
     .filter(Boolean);
-  return [...new Set(tags)].slice(0, 5);
+  return [...new Set(tags)].filter(isTag);
 }

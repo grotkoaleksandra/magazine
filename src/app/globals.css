@@ -421,3 +421,4 @@ img { max-width: 100%; display: block; }
 /* Headroom so the dots on the Ü stay inside the speckle mask (masks clip to the element box). */
 .hero-title, .masthead-title, .footer-name, .nav-brand { padding-top: 0.22em; margin-top: -0.22em; }
 .ch-o .smile { font-size: 0.4em; transform: translate(-50%, -50%) rotate(90deg); letter-spacing: -0.02em; }
+.wm-word { white-space: nowrap; }

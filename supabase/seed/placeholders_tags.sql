@@ -1,0 +1,27 @@
+-- Broad tags for the placeholder articles (run before migration 005 on an existing install).
+update public.articles set tags = array['people', 'ideas'] where slug = 'why-does-michael-karnow-only-buy-socks-from-uniqlo-and-only-in-purple-blue-and-g';
+update public.articles set tags = array['people', 'life'] where slug = 'michael-karnow-s-regimen-for-staying-fit-and-healthy';
+update public.articles set tags = array['people', 'ideas'] where slug = 'michael-karnow-has-opinions-about-which-spoon-is-the-correct-spoon';
+update public.articles set tags = array['places', 'people'] where slug = 'three-months-in-georgia-with-michael-karnow-a-survival-guide';
+update public.articles set tags = array['events', 'places'] where slug = 'warsaw-pigeon-forms-union-demands-better-breadcrumbs';
+update public.articles set tags = array['events', 'people'] where slug = 'a-man-tried-to-return-a-pierogi-to-the-factory';
+update public.articles set tags = array['ideas'] where slug = 'is-soup-a-drink-a-4-000-word-investigation';
+update public.articles set tags = array['events'] where slug = 'fashion-week-report-wearing-two-coats-at-once';
+update public.articles set tags = array['life', 'places'] where slug = 'ten-haircuts-you-can-give-yourself-at-a-bus-stop';
+update public.articles set tags = array['life'] where slug = 'your-houseplant-is-judging-you-and-it-has-reasons';
+update public.articles set tags = array['places', 'life'] where slug = 'i-visited-the-same-zabka-every-day-for-a-year';
+update public.articles set tags = array['places'] where slug = 'the-best-benches-in-lazienki-ranked-by-a-professional-sitter';
+update public.articles set tags = array['places', 'life'] where slug = 'weekend-break-inside-an-ikea-without-leaving-for-seven-days';
+update public.articles set tags = array['ideas', 'life'] where slug = 'what-if-mondays-were-optional';
+update public.articles set tags = array['events', 'places'] where slug = 'local-cat-elected-to-mokotow-district-council';
+update public.articles set tags = array['people', 'events'] where slug = 'the-secret-society-of-people-who-clap-when-the-plane-lands';
+update public.articles set tags = array['events', 'ideas'] where slug = 'burn-yer-boats-why-we-set-fire-to-a-rowing-boat-responsibly';
+update public.articles set tags = array['people', 'ideas'] where slug = 'michael-karnow-explains-why-every-playlist-needs-exactly-one-abba-song';
+update public.articles set tags = array['people', 'life'] where slug = 'my-neighbour-plays-the-accordion-at-6-a-m-and-i-ve-started-to-love-it';
+update public.articles set tags = array['life'] where slug = 'i-taught-my-dog-to-do-my-taxes-he-refused';
+update public.articles set tags = array['places', 'life'] where slug = 'a-map-of-every-caf-in-warsaw-that-has-let-me-sit-for-six-hours-with-one-coffee';
+update public.articles set tags = array['life'] where slug = 'i-gave-up-sitting-down-for-lent';
+update public.articles set tags = array['people', 'life'] where slug = 'my-grandmother-s-recipe-box-contains-only-instructions-for-pierogi-and-revenge';
+update public.articles set tags = array['people', 'places'] where slug = 'the-allotment-wars-my-courgette-is-bigger-than-yours';
+update public.articles set tags = array['life', 'people'] where slug = 'meet-ponchki-the-cyborg-pug-who-runs-on-treats-and-pure-spite';
+update public.articles set tags = array['life', 'ideas'] where slug = 'i-quit-my-job-to-watch-paint-dry-and-i-found-myself-in-the-paint';

@@ -9,6 +9,7 @@ import { slugify } from "@/lib/format";
 import { statusLabel, type Article, type Category } from "@/lib/types";
 import { useStaff } from "./AdminShell";
 import { RichTextEditor } from "./RichTextEditor";
+import { TAGS } from "@/lib/tags";
 
 const savedMessages: Record<string, string> = {
   published: "Saved and published.",
@@ -200,16 +201,17 @@ export function ArticleEditor({
                   />
                 </span>
               </label>
-              <label className="field">
-                Tags
-                <input
-                  name="tags"
-                  className="tags-input"
-                  defaultValue={(article?.tags ?? []).map((t) => `#${t}`).join(" ")}
-                  placeholder="#food #warsaw #thebestof"
-                />
-                <span className="field-hint">Up to 5, separated by spaces or commas. Readers can search and filter by these.</span>
-              </label>
+              <fieldset className="field tag-picker">
+                <legend>Tags</legend>
+                <div className="tag-options">
+                  {TAGS.map((t) => (
+                    <label key={t} className="tag-option">
+                      <input type="checkbox" name="tags" value={t} defaultChecked={article?.tags?.includes(t)} />
+                      <span>#{t}</span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
               {staff && (
                 <label className="checkbox">
                   <input type="checkbox" name="featured" defaultChecked={article?.featured ?? false} />

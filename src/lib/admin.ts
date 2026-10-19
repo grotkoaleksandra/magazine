@@ -85,7 +85,7 @@ export async function saveArticle(_prev: FormState, formData: FormData): Promise
     cover_image_url: String(formData.get("cover_image_url") || "") || null,
     category_id: categoryId,
     kind,
-    tags: normalizeTags(String(formData.get("tags") || "")),
+    tags: normalizeTags(formData.getAll("tags").join(" ")),
     featured: staff && formData.get("featured") === "on",
     status,
     updated_at: new Date().toISOString(),

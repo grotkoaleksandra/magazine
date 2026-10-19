@@ -7,6 +7,7 @@ import { ErrorNote, Loading } from "@/components/States";
 import { BOARD_NAME, fetchCategories, fetchPublished, fetchTagCounts } from "@/lib/data";
 import { normalizeTags } from "@/lib/format";
 import { useQuery } from "@/lib/useQuery";
+import { TAGS } from "@/lib/tags";
 
 export default function SearchPage() {
   return (
@@ -98,12 +99,9 @@ function Search() {
           ))}
         </div>
 
-        {meta?.tags && meta.tags.length > 0 && (
+        {meta?.tags && (
           <div className="filter-row tag-cloud" role="group" aria-label="Tags">
-            {/* The five most-used tags, plus any you've already picked; everything else is found by typing. */}
-            {meta.tags
-              .filter(({ tag }, i) => i < 5 || filters.tags.includes(tag))
-              .map(({ tag, count }) => (
+            {TAGS.map((tag) => (
               <button
                 key={tag}
                 type="button"
@@ -111,9 +109,9 @@ function Search() {
                 aria-pressed={filters.tags.includes(tag)}
                 onClick={() => toggleTag(tag)}
               >
-                #{tag} <span className="chip-count">{count}</span>
+                #{tag} <span className="chip-count">{meta.tags.find((m) => m.tag === tag)?.count ?? 0}</span>
               </button>
-              ))}
+            ))}
           </div>
         )}
 
