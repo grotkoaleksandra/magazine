@@ -276,13 +276,9 @@ img { max-width: 100%; display: block; }
   position: absolute; z-index: 2; left: 0; right: 0; top: 0;
   bottom: calc(var(--hero-pad) + var(--hero-size) * 0.95 + 34px);
   display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; pointer-events: none;
-  opacity: 0;
+  opacity: 0; transition: opacity 1.8s ease;
 }
-.is-revealed .hero-outlines { opacity: 0.16; animation: tv-on 0.7s steps(5) 0.5s backwards; }
-@keyframes tv-on {
-  0% { opacity: 0; transform: scaleY(0.02); } 40% { opacity: 1; transform: scaleY(0.04); }
-  60% { transform: scaleY(1.05); filter: brightness(2); } 100% { opacity: 0.16; transform: none; }
-}
+.is-revealed .hero-outlines { opacity: 0.16; }
 .outline-row {
   font-family: var(--brand); font-weight: 100; font-size: var(--hero-size); line-height: 0.95; letter-spacing: -0.02em;
   white-space: nowrap; color: var(--accent); text-transform: uppercase; flex-shrink: 0;
@@ -409,7 +405,7 @@ img { max-width: 100%; display: block; }
 }
 @media (prefers-reduced-motion: reduce) {
   .hero-mark, .hero-curtain, .hero-bar, .hero-caption { transition: none; }
-  .hero-grain, .hero-flash, .hero-tracking, .outline-row span, .is-revealed .hero-outlines { animation: none; }
+  .hero-grain, .hero-flash, .hero-tracking, .outline-row span { animation: none; }
 }
 
 /* Wordmark details: the :) inside the O of BOATS. */
