@@ -233,20 +233,20 @@ img { max-width: 100%; display: block; }
   overflow: hidden; background: #050504; color: var(--hero-ink);
 }
 .hero-video, .hero-fallback { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.hero-video { opacity: 0; filter: grayscale(0.8) sepia(0.35) contrast(1.6) brightness(0.62) hue-rotate(-12deg); }
+/* Keep colour and brightness in the footage so the inverting title visibly changes colour (as on the Miguel site). */
+.hero-video { opacity: 0; filter: contrast(1.25) saturate(1.15) sepia(0.12) brightness(1); }
 .hero-video.is-active { opacity: 1; }
 .hero-fallback { background: radial-gradient(ellipse at 30% 40%, #2a221a, transparent 60%), #050504; }
 .hero::after {
   content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
   background:
-    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 3px),
-    radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.8) 100%),
-    linear-gradient(rgba(40, 30, 16, 0.3), rgba(16, 20, 12, 0.45));
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.16) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at center, transparent 45%, rgba(0, 0, 0, 0.55) 100%);
 }
 .hero-flash { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: #000; opacity: 0; animation: hero-flash 0.12s steps(2); }
 @keyframes hero-flash { from { opacity: 0.85; } to { opacity: 0; } }
 .hero-grain {
-  position: absolute; inset: -50%; z-index: 1; pointer-events: none; opacity: 0.32; mix-blend-mode: overlay;
+  position: absolute; inset: -50%; z-index: 1; pointer-events: none; opacity: 0.22; mix-blend-mode: overlay;
   background-image: var(--noise); animation: hero-grain 0.5s steps(4) infinite;
 }
 @keyframes hero-grain {
