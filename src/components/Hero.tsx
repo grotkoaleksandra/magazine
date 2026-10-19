@@ -19,8 +19,8 @@ let introPlayed = false;
 
 // Built-in punk montage (free Pexels clips in public/hero), used until an admin uploads a video.
 const MONTAGE = [1, 2, 3, 4, 5, 6].map((n) => `${basePath}/hero/punk-${n}.mp4`);
-const CUT_MIN_MS = 700;
-const CUT_MAX_MS = 1300;
+const CUT_MIN_MS = 1100;
+const CUT_MAX_MS = 2000;
 
 // Full-screen front-page hero. The name types itself out on black, pans down to the
 // bottom, and then the video, caption and outline rows fade in around it.
@@ -75,38 +75,79 @@ export function Hero({ videoUrl, ready }: { videoUrl?: string; ready: boolean })
     }
   }, [phase, ready]);
 
-  // Hard-cut between clips, jumping to a random moment in each. Clips load one at a time.
+  // Hard-cut between clips, jumping to a random already-downloaded moment in each.
+  // The next clip is cued and started while hidden; we only cut to it once it is
+  // actually moving, so every cut lands on live footage instead of a frozen frame.
   useEffect(() => {
     if (!montage || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     let timer: ReturnType<typeof setTimeout>;
+    let cancelled = false;
+
+    // A random start point inside what the browser has already buffered.
+    const bufferedStart = (v: HTMLVideoElement) => {
+      const ranges = [];
+      for (let r = 0; r < v.buffered.length; r++) {
+        const start = v.buffered.start(r);
+        const end = v.buffered.end(r) - 1.5;
+        if (end > start) ranges.push([start, end]);
+      }
+      if (!ranges.length) return null;
+      const [start, end] = ranges[Math.floor(Math.random() * ranges.length)];
+      return start + Math.random() * (end - start);
+    };
+
+    const scheduleNext = () => {
+      if (!cancelled) timer = setTimeout(cut, CUT_MIN_MS + Math.random() * (CUT_MAX_MS - CUT_MIN_MS));
+    };
+
     const cut = () => {
       const videos = videoRefs.current;
+      // Keep loading the remaining clips in the background, one at a time.
       const pending = videos.find((v) => v && v.preload === "none");
       if (pending) {
         pending.preload = "auto";
         pending.load();
       }
-      const ready = videos
-        .map((v, i) => ({ v, i }))
-        .filter(({ v, i }) => v && i !== activeRef.current && v.readyState >= 2 && v.duration > 2);
-      if (ready.length) {
-        const { v, i } = ready[Math.floor(Math.random() * ready.length)];
-        v!.currentTime = Math.random() * (v!.duration - 1.5);
-        v!.play().catch(() => {});
-        videos[activeRef.current]?.pause();
+      const candidates = videos
+        .map((v, i) => ({ v, i, at: v ? bufferedStart(v) : null }))
+        .filter(({ v, i, at }) => v && i !== activeRef.current && v.readyState >= 3 && at !== null);
+      if (!candidates.length) return scheduleNext();
+
+      const { v, i, at } = candidates[Math.floor(Math.random() * candidates.length)];
+      const next = v!;
+      let done = false;
+      const swap = () => {
+        if (done || cancelled) return;
+        done = true;
+        const prev = videos[activeRef.current];
         activeRef.current = i;
         setActive(i);
         setCuts((c) => c + 1);
-        // Like a bad connection: now and then the picture freezes for a moment.
-        if (Math.random() < 0.3) {
-          setTimeout(() => v!.pause(), 120);
-          setTimeout(() => v!.play().catch(() => {}), 120 + 90 + Math.random() * 260);
+        // Pause the old clip a beat later so the cut never shows a gap.
+        setTimeout(() => prev?.pause(), 80);
+        scheduleNext();
+      };
+      next.currentTime = at!;
+      next.play().catch(() => {});
+      // Cut as soon as the hidden clip renders a new frame (or after a short safety wait).
+      const onTime = () => {
+        if (next.currentTime > at! + 0.04) {
+          next.removeEventListener("timeupdate", onTime);
+          swap();
         }
-      }
-      timer = setTimeout(cut, CUT_MIN_MS + Math.random() * (CUT_MAX_MS - CUT_MIN_MS));
+      };
+      next.addEventListener("timeupdate", onTime);
+      setTimeout(() => {
+        next.removeEventListener("timeupdate", onTime);
+        swap();
+      }, 900);
     };
-    timer = setTimeout(cut, 1200);
-    return () => clearTimeout(timer);
+
+    timer = setTimeout(cut, 1500);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [montage]);
 
   const settled = phase === "panning" || phase === "revealed";
