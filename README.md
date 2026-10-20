@@ -4,19 +4,16 @@ A magazine website hosted on **GitHub Pages**, with **Supabase** for the databas
 image storage. Staff sign in at `/admin/` to write, edit and publish articles with a rich-text
 editor and image uploads.
 
-- **Public site**: front page with a lead story, sections, article pages, search
-- **Front page**: full-screen video hero. The title types itself out, then settles at the bottom and
-  switches between light and dark text to stay readable over the video
-- **Tags & search** (`/search/`): every article can have tags like `#food #warsaw #thebestof`. Readers
-  filter by clicking tags (they combine), by section, or by typing text and `#tags` into the search box
-- **Members' Board** (`/members/`): anyone can join and write posts; editors approve them before they go
-  live. Every contributor gets a profile page with photo and bio
-- **Dashboard** (`/admin/`): members see their own posts and profile. Editors and admins can publish
-  anywhere, review members' posts, mark any number of articles as Featured, and manage sections.
-  Admins also manage the team and upload the hero video in Site settings
-- **How it works**: the site is plain static files (a Next.js static export). The visitor's browser
-  talks to Supabase directly. Supabase Row Level Security (`supabase/schema.sql`) makes sure only
-  approved staff can see drafts, write articles or upload images.
+- **A video magazine** by the members, for the members: the front page is one full-screen story after
+  another (video or photo), with a heart count. Story types: Video, Video Essay, Essay, Profile, Interview
+- **Menu**: Videos · Stories · Profiles · Manifesto · Marketplace · Search
+- **Hero**: the title types itself out, pans down, then the video montage fades in; the title inverts
+  against the video. If the browser blocks autoplay (e.g. Safari Low Power Mode) a "tap to play" appears
+- **Community**: anyone can join and get a profile (photo, bio). Members like stories, comment (comments
+  appear after an editor approves them) and post in the Marketplace (also approved first)
+- **Dashboard** (`/admin/`): editors write stories (with video upload), approve comments and marketplace
+  posts, and manage story types; admins also manage the team and Site settings (hero video, manifesto)
+- **Extras**: an "Are you stupid?" IQ test at `/iq-test/`, search with six broad tags
 
 ## Setup
 
