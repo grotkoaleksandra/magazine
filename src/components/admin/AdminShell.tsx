@@ -82,14 +82,26 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             <Wordmark />
           </Link>
           <nav>
-            <Link href="/admin/edit/" className="btn btn-primary">
-              + {staff ? "New article" : "Write a post"}
-            </Link>
-            <Link href="/admin/">{staff ? "Articles" : "My posts"}</Link>
-            {staff && <Link href="/admin/?tab=review">Awaiting review</Link>}
-            {staff && <Link href="/admin/categories/">Sections</Link>}
-            {profile.role === "admin" && <Link href="/admin/team/">Team</Link>}
-            {profile.role === "admin" && <Link href="/admin/settings/">Site settings</Link>}
+            {staff ? (
+              <>
+                <Link href="/admin/edit/" className="btn btn-primary">
+                  + New story
+                </Link>
+                <Link href="/admin/">Stories</Link>
+                <Link href="/admin/comments/">Comments</Link>
+                <Link href="/admin/marketplace/">Marketplace</Link>
+                <Link href="/admin/categories/">Story types</Link>
+                {profile.role === "admin" && <Link href="/admin/team/">Team</Link>}
+                {profile.role === "admin" && <Link href="/admin/settings/">Site settings</Link>}
+              </>
+            ) : (
+              <>
+                <Link href="/marketplace/new/" className="btn btn-primary">
+                  + Post in marketplace
+                </Link>
+                <Link href="/admin/marketplace/">My marketplace posts</Link>
+              </>
+            )}
             <Link href="/admin/profile/">My profile</Link>
             <Link href="/" target="_blank">
               View site ↗

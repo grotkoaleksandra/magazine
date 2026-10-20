@@ -55,16 +55,13 @@ export async function saveArticle(_prev: FormState, formData: FormData): Promise
   const title = String(formData.get("title") || "").trim();
   if (!title) return { error: "Please give the post a title." };
 
-  // Staff can publish anywhere. Members write for the Board and submit for review.
+  // Only editors and admins write stories now; members comment, like and use the marketplace.
+  if (!staff) return { error: "Only editors can publish stories." };
   const intent = String(formData.get("intent"));
   const current = String(formData.get("status") || "draft") as Status;
-  const status: Status = staff
-    ? intent === "publish" ? "published" : intent === "unpublish" ? "draft" : current
-    : intent === "submit" ? "pending" : intent === "withdraw" ? "draft" : current === "published" ? "pending" : current;
-
-  const placement = String(formData.get("placement") || "member");
-  const kind: Kind = staff && placement !== "member" ? "magazine" : "member";
-  const categoryId = staff && placement.startsWith("cat:") ? Number(placement.slice(4)) : null;
+  const status: Status = intent === "publish" ? "published" : intent === "unpublish" ? "draft" : current;
+  const kind: Kind = "magazine";
+  const categoryId = formData.get("category_id") ? Number(formData.get("category_id")) : null;
 
   // Make sure the slug is unique by appending -2, -3… if needed.
   const base = slugify(String(formData.get("slug") || "") || title) || "post";
@@ -83,6 +80,7 @@ export async function saveArticle(_prev: FormState, formData: FormData): Promise
     excerpt: String(formData.get("excerpt") || "").trim(),
     body: sanitizeArticleHtml(String(formData.get("body") || "")),
     cover_image_url: String(formData.get("cover_image_url") || "") || null,
+    video_url: String(formData.get("video_url") || "") || null,
     category_id: categoryId,
     kind,
     tags: normalizeTags(formData.getAll("tags").join(" ")),
@@ -128,7 +126,7 @@ export async function createCategory(name: string): Promise<FormState> {
   if (!name) return { error: "Enter a name." };
   const { count } = await supabase.from("categories").select("*", { count: "exact", head: true });
   const { error } = await supabase.from("categories").insert({ name, slug: slugify(name), position: (count ?? 0) + 1 });
-  if (error) return { error: error.code === "23505" ? "That section already exists." : error.message };
+  if (error) return { error: error.code === "23505" ? "That story type already exists." : error.message };
   return { message: `Added “${name}”.` };
 }
 
@@ -181,4 +179,42 @@ async function uploadMedia(file: File) {
   });
   if (error) throw new Error(error.message);
   return supabase.storage.from("media").getPublicUrl(path).data.publicUrl;
+}
+
+// ── Likes ───────────────────────────────────────────────────
+export async function setLike(articleId: number, userId: string, liked: boolean) {
+  const { error } = liked
+    ? await supabase.from("likes").insert({ article_id: articleId, user_id: userId })
+    : await supabase.from("likes").delete().eq("article_id", articleId).eq("user_id", userId);
+  if (error && error.code !== "23505") throw error;
+}
+
+// ── Comments ────────────────────────────────────────────────
+export async function addComment(articleId: number, userId: string, body: string) {
+  const { error } = await supabase.from("comments").insert({ article_id: articleId, author_id: userId, body: body.trim() });
+  if (error) throw error;
+}
+export async function moderateComment(id: number, action: "approve" | "delete", body?: string) {
+  const { error } =
+    action === "delete"
+      ? await supabase.from("comments").delete().eq("id", id)
+      : await supabase.from("comments").update({ status: "approved", ...(body !== undefined ? { body } : {}) }).eq("id", id);
+  if (error) throw error;
+}
+export async function updateComment(id: number, body: string) {
+  const { error } = await supabase.from("comments").update({ body }).eq("id", id);
+  if (error) throw error;
+}
+
+// ── Marketplace ─────────────────────────────────────────────
+export async function addListing(userId: string, values: Record<string, string | null>) {
+  const { error } = await supabase.from("listings").insert({ ...values, author_id: userId });
+  if (error) throw error;
+}
+export async function moderateListing(id: number, action: "approve" | "delete") {
+  const { error } =
+    action === "delete"
+      ? await supabase.from("listings").delete().eq("id", id)
+      : await supabase.from("listings").update({ status: "approved" }).eq("id", id);
+  if (error) throw error;
 }

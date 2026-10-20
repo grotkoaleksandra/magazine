@@ -14,9 +14,9 @@ export default function CategoriesPage() {
   return (
     <>
       <div className="admin-header">
-        <h1>Sections</h1>
+        <h1>story types</h1>
       </div>
-      <p className="muted">Sections appear in the navigation bar of the magazine.</p>
+      <p className="muted">Story types label each story (Video, Essay, Interview…). Profile and Interview stories also appear under Profiles.</p>
       <div className="panel">
         <form
           className="inline-form"
@@ -33,9 +33,9 @@ export default function CategoriesPage() {
             }
           }}
         >
-          <input name="name" placeholder="New section name, e.g. Food" required />
+          <input name="name" placeholder="New story type, e.g. Manifesto" required />
           <button className="btn btn-primary" disabled={busy}>
-            Add section
+            Add type
           </button>
           {state?.error && <p className="form-error">{state.error}</p>}
           {state?.message && <p className="form-message">{state.message}</p>}
@@ -54,7 +54,7 @@ export default function CategoriesPage() {
                 <button
                   className="link-button danger"
                   onClick={async () => {
-                    if (!confirm(`Delete the “${c.name}” section? Its articles will be kept.`)) return;
+                    if (!confirm(`Delete the “${c.name}” section? Its stories will be kept.`)) return;
                     try {
                       await deleteCategory(c.id);
                       reload();

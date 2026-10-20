@@ -1,7 +1,7 @@
 import { supabase } from "@/lib/supabase";
-import type { ArticleWithMeta, Author, Category, Kind } from "@/lib/types";
+import type { ArticleWithMeta, Author, Category, Comment, Kind, Listing } from "@/lib/types";
 
-export const ARTICLE_SELECT = "*, category:categories(name, slug), author:authors(id, display_name, avatar_url)";
+export const ARTICLE_SELECT = "*, category:categories(name, slug), author:authors!articles_author_id_fkey(id, display_name, avatar_url)";
 
 export const BOARD_NAME = "Members' Board";
 
@@ -112,4 +112,42 @@ export async function fetchRelated(article: ArticleWithMeta, limit = 6) {
   for (const a of ranked) for (const t of shared(a)) counts.set(t, (counts.get(t) ?? 0) + 1);
   const topTag = [...counts.entries()].sort((x, y) => y[1] - x[1])[0]?.[0];
   return { articles: ranked, topTag };
+}
+
+// ── Browsing views for the menu ─────────────────────────────
+export type View = "videos" | "stories" | "profiles";
+export const VIEWS: Record<View, { title: string; test: (a: ArticleWithMeta) => boolean }> = {
+  videos: { title: "Videos", test: (a) => Boolean(a.video_url) },
+  stories: { title: "Stories", test: (a) => !a.video_url },
+  profiles: { title: "Profiles", test: (a) => ["profile", "interview"].includes(a.category?.slug ?? "") },
+};
+
+// ── Likes ───────────────────────────────────────────────────
+export async function fetchLikeCounts(articleIds: number[]) {
+  const counts = new Map<number, number>();
+  if (!articleIds.length) return counts;
+  const { data } = await supabase.from("likes").select("article_id").in("article_id", articleIds);
+  for (const row of data ?? []) counts.set(row.article_id, (counts.get(row.article_id) ?? 0) + 1);
+  return counts;
+}
+
+// ── Comments ────────────────────────────────────────────────
+export async function fetchComments(articleId: number) {
+  const { data, error } = await supabase
+    .from("comments")
+    .select("*, author:authors!comments_author_id_fkey(id, display_name, avatar_url)")
+    .eq("article_id", articleId)
+    .order("created_at");
+  if (error) throw error;
+  return (data ?? []) as Comment[];
+}
+
+// ── Marketplace ─────────────────────────────────────────────
+export async function fetchListings(opts: { authorId?: string } = {}) {
+  let q = supabase.from("listings").select("*, author:authors!listings_author_id_fkey(id, display_name, avatar_url)").order("created_at", { ascending: false });
+  if (opts.authorId) q = q.eq("author_id", opts.authorId);
+  else q = q.eq("status", "approved");
+  const { data, error } = await q;
+  if (error) throw error;
+  return (data ?? []) as Listing[];
 }

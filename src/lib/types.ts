@@ -16,6 +16,7 @@ export type Article = {
   excerpt: string;
   body: string;
   cover_image_url: string | null;
+  video_url: string | null;
   category_id: number | null;
   author_id: string | null;
   kind: Kind;
@@ -56,4 +57,40 @@ export const statusLabel: Record<Status, string> = {
   draft: "Draft",
   pending: "Awaiting review",
   published: "Published",
+};
+
+export type Comment = {
+  id: number;
+  article_id: number;
+  author_id: string;
+  body: string;
+  status: "pending" | "approved";
+  created_at: string;
+  author?: Pick<Author, "id" | "display_name" | "avatar_url"> | null;
+  article?: { title: string; slug: string } | null;
+};
+
+export type ListingKind = "for-sale" | "for-rent" | "services" | "events" | "other";
+
+export type Listing = {
+  id: number;
+  author_id: string;
+  kind: ListingKind;
+  title: string;
+  body: string;
+  price: string;
+  location: string;
+  contact: string;
+  image_url: string | null;
+  status: "pending" | "approved";
+  created_at: string;
+  author?: Pick<Author, "id" | "display_name" | "avatar_url"> | null;
+};
+
+export const listingKinds: Record<ListingKind, string> = {
+  "for-sale": "For sale",
+  "for-rent": "For rent",
+  services: "Services",
+  events: "Events",
+  other: "Other",
 };

@@ -16,6 +16,7 @@ export default function SettingsPage() {
   if (profile.role !== "admin") return <p className="muted">Only admins can change site settings.</p>;
   if (loading) return <Loading />;
   const video = data?.hero_video_url;
+  const manifesto = data?.manifesto ?? "";
 
   async function setVideo(url: string) {
     setBusy(true);
@@ -78,6 +79,32 @@ export default function SettingsPage() {
         {note.error && <p className="form-error">{note.error}</p>}
         {note.message && <p className="form-message">{note.message}</p>}
       </div>
+
+      <form
+        className="panel settings-panel"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          setBusy(true);
+          try {
+            await saveSetting("manifesto", String(new FormData(e.currentTarget).get("manifesto") ?? ""));
+            setNote({ message: "Manifesto saved." });
+            reload();
+          } catch (err) {
+            setNote({ error: (err as Error).message });
+          } finally {
+            setBusy(false);
+          }
+        }}
+      >
+        <h2 className="panel-heading">Manifesto</h2>
+        <p className="muted">One statement per line. Each line is shown big on the Manifesto page.</p>
+        <textarea name="manifesto" className="manifesto-input" rows={10} defaultValue={manifesto} placeholder="Burn yer boats.&#10;There is no going back to the shore." />
+        <div>
+          <button className="btn btn-primary" disabled={busy}>
+            Save manifesto
+          </button>
+        </div>
+      </form>
     </>
   );
 }

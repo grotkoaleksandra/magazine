@@ -4,29 +4,31 @@ import Link from "next/link";
 import { Wordmark } from "@/components/Wordmark";
 import { useRouter } from "next/navigation";
 import { useSyncExternalStore } from "react";
-import { BOARD_NAME, fetchCategories } from "@/lib/data";
 import { AccountNav } from "@/components/AccountNav";
-import { useQuery } from "@/lib/useQuery";
+
+// The main menu. Story types live inside Videos / Stories / Profiles.
+export const MENU = [
+  { href: "/stories/?view=videos", label: "Videos" },
+  { href: "/stories/?view=stories", label: "Stories" },
+  { href: "/stories/?view=profiles", label: "Profiles" },
+  { href: "/manifesto/", label: "Manifesto" },
+  { href: "/marketplace/", label: "Marketplace" },
+];
 
 export function SectionNav({ sticky = false }: { sticky?: boolean }) {
-  const { data: categories } = useQuery(fetchCategories, []);
   return (
-    <nav className={`section-nav ${sticky ? "section-nav-sticky" : ""}`} aria-label="Sections">
+    <nav className={`section-nav ${sticky ? "section-nav-sticky" : ""}`} aria-label="Menu">
       <div className="container">
         {sticky && (
           <Link href="/" className="nav-brand">
             <Wordmark />
           </Link>
         )}
-        <Link href="/">Latest</Link>
-        {categories?.map((c) => (
-          <Link key={c.id} href={`/category/?s=${c.slug}`}>
-            {c.name}
+        {MENU.map((m) => (
+          <Link key={m.href} href={m.href}>
+            {m.label}
           </Link>
         ))}
-        <Link href="/members/" className="nav-board">
-          {BOARD_NAME}
-        </Link>
         {sticky && <Link href="/search/">Search</Link>}
         {sticky && <AccountNav />}
       </div>

@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase";
 
-export type SiteSettings = { hero_video_url?: string };
+export type SiteSettings = { hero_video_url?: string; manifesto?: string };
 
 export async function fetchSettings(): Promise<SiteSettings> {
   const { data, error } = await supabase.from("settings").select("key, value");

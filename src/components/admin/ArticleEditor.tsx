@@ -3,8 +3,7 @@
 import { useActionState, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { deleteArticle, saveArticle, uploadImage } from "@/lib/admin";
-import { BOARD_NAME } from "@/lib/data";
+import { deleteArticle, saveArticle, uploadImage, uploadVideo } from "@/lib/admin";
 import { slugify } from "@/lib/format";
 import { statusLabel, type Article, type Category } from "@/lib/types";
 import { useStaff } from "./AdminShell";
@@ -42,6 +41,8 @@ export function ArticleEditor({
   const [slugEdited, setSlugEdited] = useState(Boolean(article));
   const [body, setBody] = useState(article?.body ?? "");
   const [cover, setCover] = useState(article?.cover_image_url ?? "");
+  const [video, setVideo] = useState(article?.video_url ?? "");
+  const [videoUploading, setVideoUploading] = useState(false);
   const [coverUploading, setCoverUploading] = useState(false);
   const [coverError, setCoverError] = useState("");
 
@@ -49,10 +50,8 @@ export function ArticleEditor({
   const isPublished = status === "published";
   // Members can't change a post once it's published; editors can.
   const locked = !staff && isPublished;
-  const busy = pending || coverUploading;
+  const busy = pending || coverUploading || videoUploading;
 
-  const placement =
-    article?.kind === "member" ? "member" : article?.category_id ? `cat:${article.category_id}` : staff ? "magazine" : "member";
 
   async function onCover(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -76,6 +75,7 @@ export function ArticleEditor({
         <input type="hidden" name="status" value={status} />
         <input type="hidden" name="body" value={body} />
         <input type="hidden" name="cover_image_url" value={cover} />
+        <input type="hidden" name="video_url" value={video} />
 
         <div className="admin-header">
           <div>
@@ -168,25 +168,17 @@ export function ArticleEditor({
                 Status
                 <span className={`tag tag-${status}`}>{statusLabel[status]}</span>
               </label>
-              {staff ? (
-                <label className="field">
-                  Where it appears
-                  <select name="placement" defaultValue={placement}>
-                    <option value="magazine">Magazine — no section</option>
-                    {categories.map((c) => (
-                      <option key={c.id} value={`cat:${c.id}`}>
-                        Magazine — {c.name}
-                      </option>
-                    ))}
-                    <option value="member">{BOARD_NAME}</option>
-                  </select>
-                </label>
-              ) : (
-                <label className="field">
-                  Where it appears
-                  <span className="field-value">{BOARD_NAME}</span>
-                </label>
-              )}
+              <label className="field">
+                Story type
+                <select name="category_id" defaultValue={article?.category_id ?? ""}>
+                  <option value="">— None —</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
               <label className="field">
                 URL
                 <span className="slug-input">
@@ -239,6 +231,44 @@ export function ArticleEditor({
                 </label>
               )}
               {coverError && <p className="form-error">{coverError}</p>}
+            </div>
+
+            <div className="panel">
+              <span className="field-label">Video</span>
+              <p className="field-hint">Makes this a video story: it plays full-screen on the front page. MP4, under 50 MB.</p>
+              {video ? (
+                <div className="cover-preview">
+                  <video src={video} muted loop autoPlay playsInline className="settings-video" />
+                  {!locked && (
+                    <button type="button" className="link-button danger" onClick={() => setVideo("")}>
+                      Remove video
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <label className="dropzone">
+                  {videoUploading ? "Uploading…" : "Choose a video"}
+                  <input
+                    type="file"
+                    accept="video/mp4,video/webm"
+                    hidden
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      e.target.value = "";
+                      if (!file) return;
+                      setCoverError("");
+                      setVideoUploading(true);
+                      try {
+                        setVideo(await uploadVideo(file));
+                      } catch (err) {
+                        setCoverError((err as Error).message);
+                      } finally {
+                        setVideoUploading(false);
+                      }
+                    }}
+                  />
+                </label>
+              )}
             </div>
           </aside>
         </fieldset>

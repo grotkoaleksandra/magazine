@@ -24,7 +24,7 @@ export function AccountNav() {
       <span className="account-nav">
         <Link href="/admin/">Log in</Link>
         <Link href="/admin/?join=1" className="account-join">
-          Become a member to contribute
+          Join
         </Link>
       </span>
     );

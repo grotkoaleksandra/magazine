@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Masonry } from "@/components/Masonry";
 import { ErrorNote, Loading } from "@/components/States";
-import { BOARD_NAME, fetchCategories, fetchPublished, fetchTagCounts } from "@/lib/data";
+import { fetchCategories, fetchPublished, fetchTagCounts } from "@/lib/data";
 import { normalizeTags } from "@/lib/format";
 import { useQuery } from "@/lib/useQuery";
 import { TAGS } from "@/lib/tags";
@@ -52,7 +52,6 @@ function Search() {
     return fetchPublished({
       search: filters.q || undefined,
       tags: filters.tags,
-      kind: filters.section === "board" ? "member" : category ? "magazine" : undefined,
       categoryId: category?.id,
       limit: 60,
     });
@@ -62,7 +61,6 @@ function Search() {
   const sections = [
     { slug: "", name: "Everything" },
     ...(meta?.categories ?? []).map((c) => ({ slug: c.slug, name: c.name })),
-    { slug: "board", name: BOARD_NAME },
   ];
 
   return (

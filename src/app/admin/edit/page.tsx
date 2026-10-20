@@ -3,6 +3,7 @@
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { ArticleEditor } from "@/components/admin/ArticleEditor";
+import { useStaff } from "@/components/admin/AdminShell";
 import { ErrorNote, Loading } from "@/components/States";
 import { fetchCategories } from "@/lib/data";
 import { supabase } from "@/lib/supabase";
@@ -18,6 +19,7 @@ export default function EditPage() {
 }
 
 function Edit() {
+  const { staff } = useStaff();
   const params = useSearchParams();
   const id = params.get("id");
   const saved = params.get("saved") ?? undefined;
@@ -36,6 +38,7 @@ function Edit() {
     return { categories, article };
   }, [id, savedAt]);
 
+  if (!staff) return <p className="muted">Stories are written by the editors. You can post in the marketplace instead.</p>;
   if (loading) return <Loading />;
   if (error) return <ErrorNote error={error} />;
   if (id && !data?.article) return <p className="muted">That article doesn&apos;t exist.</p>;

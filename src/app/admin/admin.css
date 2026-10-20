@@ -139,3 +139,20 @@ label.btn { cursor: pointer; }
 .tag-option span { font-family: var(--mono); font-size: 12px; text-transform: none; letter-spacing: 0; font-weight: 700; color: var(--accent); border: 1px solid var(--rule); padding: 5px 10px; }
 .tag-option input:checked + span { background: var(--accent); color: #fff; border-color: var(--accent); }
 .tag-option input:focus-visible + span { outline: 2px solid var(--ink); }
+
+.mod-list { list-style: none; margin: 0; padding: 0; }
+.mod-list li { padding: 18px 0; border-bottom: 1px solid var(--rule); }
+.mod-list li:last-child { border-bottom: 0; }
+.mod-meta { font-size: 15px; margin: 0 0 8px; color: var(--ink-soft); }
+.mod-meta a { text-decoration: underline; color: var(--ink); }
+.mod-body { font-size: 18px; margin: 0 0 12px; white-space: pre-wrap; }
+.mod-actions { display: flex; gap: 10px; align-items: center; }
+.mod-edit { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; margin-bottom: 12px; }
+.mod-edit textarea, .manifesto-input { width: 100%; font: inherit; font-size: 16px; padding: 10px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink); }
+.manifesto-input { font-family: var(--display); font-weight: 700; font-size: 18px; }
+.tabs button.tab { background: none; border: 0; border-bottom: 2px solid transparent; cursor: pointer; font: inherit; }
+.tabs button.tab-on { border-bottom-color: var(--ink); color: var(--ink); }
+.member-home { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.member-tile { display: flex; flex-direction: column; gap: 8px; font-size: 18px; }
+.member-tile:hover { border-color: var(--accent); }
+.admin-nav nav a:not(.btn) { font-size: 16px; }

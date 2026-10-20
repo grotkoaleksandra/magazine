@@ -1,20 +1,13 @@
 import Link from "next/link";
 import type { ArticleWithMeta } from "@/lib/types";
-import { BOARD_NAME } from "@/lib/data";
 import { formatDate } from "@/lib/format";
 import { Tags } from "@/components/Tags";
 
 export function Kicker({ article }: { article: ArticleWithMeta }) {
-  if (article.kind === "member") {
-    return (
-      <Link href="/members/" className="kicker kicker-board">
-        {BOARD_NAME}
-      </Link>
-    );
-  }
   if (!article.category) return null;
   return (
     <Link href={`/category/?s=${article.category.slug}`} className="kicker">
+      {article.video_url ? "▶ " : ""}
       {article.category.name}
     </Link>
   );

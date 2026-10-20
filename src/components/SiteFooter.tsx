@@ -10,7 +10,8 @@ export function SiteFooter() {
           <Wordmark />
         </span>
         <span>{site.description}</span>
-        <Link href="/admin/?join=1">Become a member to contribute</Link>
+        <Link href="/manifesto/">Manifesto</Link>
+        <Link href="/admin/?join=1">Join</Link>
       </div>
     </footer>
   );
