@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 import { LikeButton } from "@/components/LikeButton";
 import type { ArticleWithMeta } from "@/lib/types";
 
-// One story filling the whole screen: its video (or photo) behind a big title.
+// One story: a big video (or photo) with the headline in a box over its lower part.
 // Videos only play while they're on screen, to save battery and data.
 export function StoryPanel({ article, likes }: { article: ArticleWithMeta; likes: number }) {
   const ref = useRef<HTMLVideoElement>(null);
@@ -28,8 +28,8 @@ export function StoryPanel({ article, likes }: { article: ArticleWithMeta; likes
   const type = article.category?.name ?? (article.video_url ? "Video" : "Story");
 
   return (
-    <section className="story-panel">
-      <Link href={href} className="story-panel-media" tabIndex={-1} aria-hidden>
+    <article className="story-card">
+      <Link href={href} className="story-card-media" tabIndex={-1} aria-hidden>
         {article.video_url ? (
           <video
             ref={ref}
@@ -47,21 +47,24 @@ export function StoryPanel({ article, likes }: { article: ArticleWithMeta; likes
           )
         )}
       </Link>
-      <div className="story-panel-text">
-        <p className="story-panel-type">
-          {article.video_url && <span className="story-panel-play">▶</span>}
+      {/* Headline box over the lower part of the picture, dark text on light, easy to read. */}
+      <div className="story-card-box">
+        <p className="story-card-type">
+          {article.video_url && <span aria-hidden>▶ </span>}
           {type}
         </p>
-        <h2 className="story-panel-title">
+        <h2 className="story-card-title">
           <Link href={href}>{article.title}</Link>
         </h2>
-        <div className="story-panel-actions">
-          <Link href={href} className="btn btn-light">
-            {article.video_url ? "Watch" : "Read"}
-          </Link>
-          <LikeButton articleId={article.id} count={likes} size="lg" />
+        <div className="story-card-foot">
+          {article.author?.display_name && (
+            <p className="story-card-byline">
+              By <Link href={`/member/?id=${article.author.id}`}>{article.author.display_name}</Link>
+            </p>
+          )}
+          <LikeButton articleId={article.id} count={likes} />
         </div>
       </div>
-    </section>
+    </article>
   );
 }
