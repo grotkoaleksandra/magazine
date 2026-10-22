@@ -4,10 +4,31 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { LikeButton } from "@/components/LikeButton";
 import type { ArticleWithMeta } from "@/lib/types";
+import { markSeen } from "@/lib/seen";
 
 // One story: a big video (or photo) with the headline in a box over its lower part.
-export function StoryPanel({ article, likes }: { article: ArticleWithMeta; likes: number }) {
+export function StoryPanel({ article, likes, isNew = false }: { article: ArticleWithMeta; likes: number; isNew?: boolean }) {
   const ref = useRef<HTMLVideoElement>(null);
+  const cardRef = useRef<HTMLElement>(null);
+
+  // Count a story as "seen" once most of it has been on screen for a moment.
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el) return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        clearTimeout(timer);
+        if (entry.isIntersecting) timer = setTimeout(() => markSeen(article.id), 1500);
+      },
+      { threshold: 0.6 },
+    );
+    io.observe(el);
+    return () => {
+      clearTimeout(timer);
+      io.disconnect();
+    };
+  }, [article.id]);
 
   // Desktop: the video plays while the mouse is over the card. Touch screens can't hover,
   // so there it plays while the card is on screen.
@@ -32,7 +53,7 @@ export function StoryPanel({ article, likes }: { article: ArticleWithMeta; likes
   const type = article.category?.name ?? (article.video_url ? "Video" : "Story");
 
   return (
-    <article className="story-card" onMouseEnter={hoverPlay} onMouseLeave={hoverPause}>
+    <article ref={cardRef} className="story-card" onMouseEnter={hoverPlay} onMouseLeave={hoverPause}>
       <Link href={href} className="story-card-media" tabIndex={-1} aria-hidden>
         {article.video_url ? (
           <video
@@ -54,6 +75,7 @@ export function StoryPanel({ article, likes }: { article: ArticleWithMeta; likes
       {/* Headline box over the lower part of the picture, dark text on light, easy to read. */}
       <div className="story-card-box">
         <p className="story-card-type">
+          {isNew && <span className="new-badge">new</span>}
           {article.video_url && <span aria-hidden>▶ </span>}
           {type}
         </p>

@@ -13,6 +13,7 @@ import { Tags } from "@/components/Tags";
 import { Related } from "@/components/Related";
 import { sanitizeArticleHtml } from "@/lib/sanitize";
 import { site } from "@/lib/site";
+import { markSeen } from "@/lib/seen";
 import { useQuery } from "@/lib/useQuery";
 
 export default function ArticlePage() {
@@ -32,7 +33,9 @@ function Article() {
   );
 
   useEffect(() => {
-    if (article) document.title = `${article.title} — ${site.name}`;
+    if (!article) return;
+    document.title = `${article.title} — ${site.name}`;
+    if (article.status === "published") markSeen(article.id);
   }, [article]);
 
   if (loading) return <Loading />;
