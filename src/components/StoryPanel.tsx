@@ -6,29 +6,33 @@ import { LikeButton } from "@/components/LikeButton";
 import type { ArticleWithMeta } from "@/lib/types";
 
 // One story: a big video (or photo) with the headline in a box over its lower part.
-// Videos only play while they're on screen, to save battery and data.
 export function StoryPanel({ article, likes }: { article: ArticleWithMeta; likes: number }) {
   const ref = useRef<HTMLVideoElement>(null);
 
+  // Desktop: the video plays while the mouse is over the card. Touch screens can't hover,
+  // so there it plays while the card is on screen.
   useEffect(() => {
     const v = ref.current;
-    if (!v) return;
+    if (!v || window.matchMedia("(hover: hover)").matches) return;
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) v.play().catch(() => {});
         else v.pause();
       },
-      { threshold: 0.35 },
+      { threshold: 0.6 },
     );
     io.observe(v);
     return () => io.disconnect();
   }, []);
 
+  const hoverPlay = () => ref.current?.play().catch(() => {});
+  const hoverPause = () => ref.current?.pause();
+
   const href = `/article/?s=${article.slug}`;
   const type = article.category?.name ?? (article.video_url ? "Video" : "Story");
 
   return (
-    <article className="story-card">
+    <article className="story-card" onMouseEnter={hoverPlay} onMouseLeave={hoverPause}>
       <Link href={href} className="story-card-media" tabIndex={-1} aria-hidden>
         {article.video_url ? (
           <video

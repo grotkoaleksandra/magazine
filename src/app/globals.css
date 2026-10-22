@@ -694,35 +694,45 @@ body { font-size: 18px; }
 .form-error, .form-message { font-size: 15px; }
 .link-button { font-size: 15px; }
 
-/* ═══ Story cards: every story laid out like the lead story (picture + headline box over its lower part) ═══ */
-.stream { max-width: 1080px; margin: 0 auto; padding: 56px 24px 0; gap: 80px; }
-.story-card { position: relative; }
-.story-card-media { display: block; aspect-ratio: 16 / 11; overflow: hidden; background: var(--surface); }
+/* ═══ Story cards: one story per screen — big video/photo, small headline box along its bottom edge ═══ */
+/* Scrolling settles on the nearest story instead of stopping halfway between two. */
+html:has(.stream) { scroll-snap-type: y mandatory; }
+.hero { scroll-snap-align: start; }
+.story-card, .stream-promo { scroll-snap-align: center; }
+.join-panel { scroll-snap-align: center; }
+.site-footer { scroll-snap-align: end; }
+
+.stream { max-width: 1080px; margin: 0 auto; padding: 72px 24px 24px; display: flex; flex-direction: column; gap: 96px; }
+.story-card { position: relative; display: flex; flex-direction: column; }
+/* Sized so a whole card (picture + box) fits on screen, without filling it. */
+.story-card-media { display: block; width: 100%; aspect-ratio: 16 / 9; max-height: calc(100svh - 56px - 170px); overflow: hidden; background: var(--surface); }
 .story-card-media video, .story-card-media img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(0.4) contrast(1.15); transition: filter 0.3s steps(3); }
 .story-card:hover .story-card-media img, .story-card:hover .story-card-media video { filter: none; }
+/* The box only tucks under the bottom edge of the picture. */
 .story-card-box {
-  position: relative; margin: -22% 7% 0; padding: 44px 48px 40px; text-align: center;
-  background: var(--ink); color: var(--paper);
+  position: relative; align-self: center; width: min(760px, 84%); margin-top: -56px;
+  padding: 22px 32px 20px; text-align: center; background: var(--ink); color: var(--paper);
 }
 .story-card-type {
-  margin: 0 0 18px; font-family: var(--mono); font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+  margin: 0 0 10px; font-family: var(--mono); font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
   text-decoration: underline; text-underline-offset: 3px;
 }
 .story-card-title {
-  font-family: var(--display); font-weight: 800; font-size: clamp(30px, 3.6vw, 54px); line-height: 1.05; letter-spacing: -0.02em;
-  margin: 0 0 22px; text-wrap: balance;
+  font-family: var(--display); font-weight: 800; font-size: clamp(24px, 2.5vw, 36px); line-height: 1.08; letter-spacing: -0.02em;
+  margin: 0 0 14px; text-wrap: balance;
 }
 .story-card-title a:hover { color: var(--accent); }
-.story-card-foot { display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap; }
-.story-card-byline { margin: 0; font-family: var(--mono); font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+.story-card-foot { display: flex; justify-content: center; align-items: center; gap: 18px; flex-wrap: wrap; }
+.story-card-byline { margin: 0; font-family: var(--mono); font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
 .story-card-byline a:hover { color: var(--accent); }
-.story-card-box .like { color: var(--paper); background: transparent; border-color: var(--paper); font-size: 15px; padding: 7px 12px; }
-.story-card-box .like svg { font-size: 18px; }
+.story-card-box .like { color: var(--paper); background: transparent; border-color: var(--paper); font-size: 14px; padding: 6px 11px; }
+.story-card-box .like svg { font-size: 17px; }
 .story-card-box .like:hover, .story-card-box .like.is-liked { color: var(--accent); border-color: var(--accent); }
-.stream-promo { padding: 0; border: 0; }
+.stream-promo { padding: 48px 0; border: 0; }
 .stream-bleed { margin: 0; }
-.stream-bleed .stream { padding-top: 0; }
 @media (max-width: 760px) {
-  .stream { padding: 32px 16px 0; gap: 56px; }
-  .story-card-box { margin: -14% 12px 0; padding: 26px 18px 24px; }
+  .stream { padding: 40px 12px 16px; gap: 64px; }
+  .story-card-media { aspect-ratio: 4 / 3; }
+  .story-card-box { width: calc(100% - 24px); margin-top: -40px; padding: 18px 16px; }
 }
+@media (prefers-reduced-motion: reduce) { html:has(.stream) { scroll-snap-type: none; } }
